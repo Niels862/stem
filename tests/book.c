@@ -2,6 +2,8 @@
 #include <stdio.h>
 
 int main() {
+    stem_init();
+
     stem_node_t *root = stem_class(
         "book", 
         stem_list(

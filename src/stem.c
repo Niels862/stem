@@ -1,10 +1,23 @@
 #include "stem/stem.h"
+#include "token.h"
 #include "util.h"
 #include <stdlib.h>
 #include <stdarg.h>
 
 void stem_init() {
+    stem_tokenlist_t tokens;
+    stem_tokenlist_init(&tokens);
 
+    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
+    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
+    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
+    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
+    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
+    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
+
+    stem_tokenlist_write(&tokens, stdout);
+
+    stem_tokenlist_free(&tokens);
 }
 
 stem_node_t *stem_class(char *name, stem_node_t **attributes, 

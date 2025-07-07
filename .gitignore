@@ -1,6 +1,5 @@
 .vscode/
+build/
 libstem.a
 *.o
 *.d
-tests/*
-!tests/*.c
