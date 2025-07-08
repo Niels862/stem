@@ -7,8 +7,14 @@
 
 typedef enum {
     STEM_FMT_NONE           = 0x0,
+
     STEM_FMT_SPACE          = 0x1,
-    STEM_FMT_NEWLINE        = 0x2,
+    STEM_FMT_NO_SPACE       = 0x2,
+    STEM_FMT_FORCE_SPACE    = 0x4,
+
+    STEM_FMT_NEWLINE        = 0x8,
+    STEM_FMT_NO_NEWLINE     = 0x10,
+    STEM_FMT_FORCE_NEWLINE  = 0x20,
 } stem_format_attr_t;
 
 typedef struct {
@@ -42,8 +48,9 @@ typedef struct {
     size_t idx;
 
     stem_token_t *token;
-    stem_token_t *next;
 } stem_token_iter_t;
+
+stem_token_t *stem_token_empty();
 
 void stem_token_emit(stem_tokenlist_t *list, char *str, 
                      stem_format_attr_t left, 

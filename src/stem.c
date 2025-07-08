@@ -1,5 +1,5 @@
 #include "stem/stem.h"
-#include "token.h"
+#include "emitter.h"
 #include "util.h"
 #include <stdlib.h>
 #include <stdarg.h>
@@ -8,14 +8,17 @@ void stem_init() {
     stem_tokenlist_t tokens;
     stem_tokenlist_init(&tokens);
 
-    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
-    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
-    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
-    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
-    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
-    stem_token_emit(&tokens, "test", STEM_FMT_NONE, STEM_FMT_NONE);
+    stem_token_emit(&tokens, "struct", STEM_FMT_SPACE, STEM_FMT_SPACE);
+    stem_token_emit(&tokens, "test_t", STEM_FMT_SPACE, STEM_FMT_SPACE);
+    stem_token_emit(&tokens, "{", STEM_FMT_SPACE, STEM_FMT_NEWLINE);
+    stem_token_emit(&tokens, "int", STEM_FMT_SPACE, STEM_FMT_SPACE);
+    stem_token_emit(&tokens, "i", STEM_FMT_SPACE, STEM_FMT_SPACE);
+    stem_token_emit(&tokens, ";", STEM_FMT_NO_SPACE, STEM_FMT_NEWLINE);
+    stem_token_emit(&tokens, "}", STEM_FMT_NONE, STEM_FMT_NONE);
 
-    stem_tokenlist_write(&tokens, stdout);
+    stem_tokenlist_write(&tokens, stderr);
+
+    stem_emit(&tokens, stderr);
 
     stem_tokenlist_free(&tokens);
 }

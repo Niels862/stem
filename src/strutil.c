@@ -50,5 +50,5 @@ void stem_strview_write_literal(stem_strview_t *str, FILE *file) {
 }
 
 void stem_strview_write(stem_strview_t *str, FILE *file) {
-    fprintf(file, "%.*s (%ld)", (int)(str->end - str->start), str->start, str->end - str->start);
+    fprintf(file, "%.*s", (int)(str->end - str->start), str->start);
 }

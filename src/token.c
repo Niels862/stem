@@ -2,17 +2,6 @@
 #include "util.h"
 #include <stdlib.h>
 
-static char stem_empty_str = '\0';
-
-static stem_token_t stem_empty_token = {
-    .left = STEM_FMT_NONE, 
-    .right = STEM_FMT_NONE,
-    .text = {
-        .start = &stem_empty_str,
-        .end = &stem_empty_str,
-    },
-};
-
 static stem_token_block_t *stem_token_block_alloc() {
     stem_token_block_t *block = stem_xmalloc(STEM_TOKENS_BLOCKSIZE);
 
@@ -20,6 +9,20 @@ static stem_token_block_t *stem_token_block_alloc() {
     block->size = 0;
 
     return block;
+}
+
+stem_token_t *stem_token_empty() {
+    static char empty_str = '\0';
+
+    static stem_token_t empty_token = {
+        .left = STEM_FMT_NONE,
+        .right = STEM_FMT_NONE,
+        .text = {
+            .start = &empty_str, .end = &empty_str
+        },
+    };
+
+    return &empty_token;
 }
 
 void stem_token_emit(stem_tokenlist_t *list, char *str, 
@@ -63,56 +66,51 @@ void stem_tokenlist_free(stem_tokenlist_t *list) {
 }
 
 void stem_tokenlist_write(stem_tokenlist_t *list, FILE *file) {
-    stem_token_block_t *block = list->first;
+    stem_token_iter_t iter;
+    stem_token_iter_init(&iter, list);
 
     fprintf(file, "{\n");
 
-    while (block != NULL) {
-        for (size_t i = 0; i < block->size; i++) {
-            fprintf(file, "  ");
-            stem_token_write(&block->data[i], file);
-            fprintf(file, ",\n");
-        }
+    while (!stem_token_iter_at_end(&iter)) {
+        fprintf(file, "  ");
+        stem_token_write(iter.token, file);
+        fprintf(file, ",\n");
 
-        block = block->next;
+        stem_token_iter_next(&iter);
     }
 
     fprintf(file, "}\n");
 }
 
-static stem_token_t *stem_token_at_block_idx(stem_token_block_t *block, 
-                                             size_t idx) {
-    while (idx > block->size) {
-        if (block->next == NULL) {
-            return &stem_empty_token;
-        }
-        idx -= block->size;
-        block = block->next;
-    }
-
-    return &block->data[idx];
-}
-
 void stem_token_iter_init(stem_token_iter_t *iter, stem_tokenlist_t *list) { 
     iter->block = list->first;
     iter->idx = 0;
-    iter->token = stem_token_at_block_idx(iter->block, iter->idx);
-    iter->next = stem_token_at_block_idx(iter->block, iter->idx + 1);
+
+    if (iter->block != NULL && iter->block->size > 0) {
+        iter->token = &iter->block->data[iter->idx];
+    } else {
+        iter->token = stem_token_empty();
+    }
 }
 
 void stem_token_iter_next(stem_token_iter_t *iter) {
-    if (!stem_token_iter_at_end(iter)) {
-        iter->idx++;
-
-        if (iter->idx >= iter->block->size) {
-
-        }
+    if (stem_token_iter_at_end(iter)) {
+        return;
     }
 
-    iter->token = iter->next;
+    iter->idx++;
+    if (iter->idx >= iter->block->size) {
+        iter->block = iter->block->next;
+        iter->idx = 0;
+    }
+
+    if (iter->block == NULL || iter->idx >= iter->block->size) {
+        iter->token = stem_token_empty();
+    } else {
+        iter->token = &iter->block->data[iter->idx];
+    }
 }
 
 bool stem_token_iter_at_end(stem_token_iter_t *iter) {
-    (void)iter;
-    return false;
+    return iter->token == stem_token_empty();
 }
