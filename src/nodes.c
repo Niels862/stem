@@ -1,33 +1,20 @@
-#include "stem/stem.h"
-#include "emitter.h"
+#include "nodes.h"
+#include "renderer.h"
 #include "util.h"
 #include <stdlib.h>
 #include <stdarg.h>
 
-void stem_init() {
-    stem_tokenlist_t tokens;
-    stem_tokenlist_init(&tokens);
-
-    stem_token_emit(&tokens, "struct", STEM_FMT_SPACE, STEM_FMT_SPACE);
-    stem_token_emit(&tokens, "test_t", STEM_FMT_SPACE, STEM_FMT_SPACE);
-    stem_token_emit(&tokens, "{", STEM_FMT_SPACE, STEM_FMT_NEWLINE);
-    stem_token_emit(&tokens, "int", STEM_FMT_SPACE, STEM_FMT_SPACE);
-    stem_token_emit(&tokens, "i", STEM_FMT_SPACE, STEM_FMT_SPACE);
-    stem_token_emit(&tokens, ";", STEM_FMT_NO_SPACE, STEM_FMT_NEWLINE);
-    stem_token_emit(&tokens, "}", STEM_FMT_NONE, STEM_FMT_NONE);
-
-    stem_tokenlist_write(&tokens, stderr);
-
-    stem_emit(&tokens, stderr);
-
-    stem_tokenlist_free(&tokens);
-}
+void stem_init() {}
 
 stem_node_t *stem_class(char *name, stem_node_t **attributes, 
                         stem_node_t **methods) {
+    static stem_node_descriptor_t desc = {
+        .kind = STEM_NODE_CLASS
+    };
+
     stem_node_class_t *node = stem_xmalloc(sizeof(stem_node_class_t));
 
-    node->base.kind = STEM_NODE_CLASS;
+    node->base.desc = &desc;
     node->name = name;
     node->attributes = attributes;
     node->methods = methods;
@@ -35,10 +22,27 @@ stem_node_t *stem_class(char *name, stem_node_t **attributes,
     return &node->base;
 }
 
+stem_node_t *stem_function(char *name) {
+    static stem_node_descriptor_t desc = {
+        .kind = STEM_NODE_FUNCTION
+    };
+
+    stem_node_function_t *node = stem_xmalloc(sizeof(stem_node_function_t));
+
+    node->base.desc = &desc;
+    node->name = name;
+
+    return &node->base;
+}
+
 stem_node_t *stem_variable(char *name, stem_node_t *type) {
+    static stem_node_descriptor_t desc = {
+        .kind = STEM_NODE_VARIABLE
+    };
+
     stem_node_variable_t *node = stem_xmalloc(sizeof(stem_node_variable_t));
 
-    node->base.kind = STEM_NODE_VARIABLE;
+    node->base.desc = &desc;
     node->name = name;
     node->type = type;
 
@@ -46,9 +50,13 @@ stem_node_t *stem_variable(char *name, stem_node_t *type) {
 }
 
 stem_node_t *stem_identifier(char *name) {
+    static stem_node_descriptor_t desc = {
+        .kind = STEM_NODE_IDENTIFIER
+    };
+
     stem_node_identifier_t *node = stem_xmalloc(sizeof(stem_node_identifier_t));
 
-    node->base.kind = STEM_NODE_IDENTIFIER;
+    node->base.desc = &desc;
     node->name = name;
 
     return &node->base;
@@ -84,6 +92,12 @@ stem_node_t **stem_list(stem_node_t *node, ...) {
     va_end(args);
 
     return list;
+}
+
+void stem_free_list(stem_node_t **list) {
+    for (size_t i = 0; list[i] != NULL; i++) {
+        stem_free_node(list[i]);
+    }
 }
 
 void stem_free_node(stem_node_t *node) {

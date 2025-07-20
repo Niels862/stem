@@ -4,6 +4,6 @@
 #include "token.h"
 #include <stdio.h>
 
-void stem_emit(stem_tokenlist_t *tokens, FILE *file);
+void stem_render(stem_tokenlist_t *tokens, FILE *file);
 
 #endif

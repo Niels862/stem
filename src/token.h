@@ -3,24 +3,26 @@
 
 #include "strutil.h"
 #include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
 
-typedef enum {
-    STEM_FMT_NONE           = 0x0,
-
-    STEM_FMT_SPACE          = 0x1,
-    STEM_FMT_NO_SPACE       = 0x2,
-    STEM_FMT_FORCE_SPACE    = 0x4,
-
-    STEM_FMT_NEWLINE        = 0x8,
-    STEM_FMT_NO_NEWLINE     = 0x10,
-    STEM_FMT_FORCE_NEWLINE  = 0x20,
-} stem_format_attr_t;
+typedef struct {
+    bool emit;
+    bool force;
+} stem_format_option_t;
 
 typedef struct {
     stem_strview_t text;
-    stem_format_attr_t left;
-    stem_format_attr_t right;
+    struct {
+        stem_format_option_t space;
+        stem_format_option_t newline;
+        stem_format_option_t emptyline;
+    } pre;
+    struct {
+        stem_format_option_t space;
+        stem_format_option_t newline;
+        stem_format_option_t emptyline;
+    } post;
 } stem_token_t;
 
 typedef struct stem_token_block_t {
@@ -52,9 +54,7 @@ typedef struct {
 
 stem_token_t *stem_token_empty();
 
-void stem_token_emit(stem_tokenlist_t *list, char *str, 
-                     stem_format_attr_t left, 
-                     stem_format_attr_t right);
+stem_token_t *stem_token_emit(stem_tokenlist_t *list, char *str);
 
 void stem_token_write(stem_token_t *token, FILE *file);
 

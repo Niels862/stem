@@ -1,6 +1,7 @@
 #include "token.h"
 #include "util.h"
 #include <stdlib.h>
+#include <string.h>
 
 static stem_token_block_t *stem_token_block_alloc() {
     stem_token_block_t *block = stem_xmalloc(STEM_TOKENS_BLOCKSIZE);
@@ -15,8 +16,6 @@ stem_token_t *stem_token_empty() {
     static char empty_str = '\0';
 
     static stem_token_t empty_token = {
-        .left = STEM_FMT_NONE,
-        .right = STEM_FMT_NONE,
         .text = {
             .start = &empty_str, .end = &empty_str
         },
@@ -25,9 +24,7 @@ stem_token_t *stem_token_empty() {
     return &empty_token;
 }
 
-void stem_token_emit(stem_tokenlist_t *list, char *str, 
-                     stem_format_attr_t left, 
-                     stem_format_attr_t right) {
+stem_token_t *stem_token_emit(stem_tokenlist_t *list, char *str) {
     stem_token_block_t *block = list->last;
 
     if (block->size + 1 >= STEM_TOKENS_N_PER_BLOCK) {
@@ -35,12 +32,13 @@ void stem_token_emit(stem_tokenlist_t *list, char *str,
     }
 
     stem_token_t *token = &block->data[block->size];
+    memset(token, 0, sizeof(stem_token_t));
 
     stem_strview_init_in_pool(&token->text, &list->pool, str);
-    token->left = left;
-    token->right = right;
 
     block->size++;
+
+    return token;
 }
 
 void stem_token_write(stem_token_t *token, FILE *file) {
