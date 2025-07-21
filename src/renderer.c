@@ -1,4 +1,17 @@
 #include "renderer.h"
+#include "util.h"
+
+typedef struct {
+    FILE *file;
+    size_t indent;
+    bool clean_line;
+} stem_render_context_t;
+
+static void stem_render_context_init(stem_render_context_t *rctx, FILE *file) {
+    rctx->file = file;
+    rctx->indent = 0;
+    rctx->clean_line = true;
+}
 
 static bool stem_use_format_option(stem_format_option_t post, 
                                    stem_format_option_t pre) {
@@ -11,8 +24,8 @@ static bool stem_use_format_option(stem_format_option_t post,
     return post.emit || pre.emit;
 }
 
-static void stem_render_token(stem_token_t *token, stem_token_t *next, 
-                            FILE *file) {
+static void stem_render_token(stem_context_t *ctx, stem_render_context_t *rctx, 
+                              stem_token_t *token, stem_token_t *next) {
     bool emptyline = false, newline = false, space = false;
 
     if (stem_use_format_option(token->post.emptyline, next->pre.emptyline)) {
@@ -23,20 +36,41 @@ static void stem_render_token(stem_token_t *token, stem_token_t *next,
         space = true;
     }
 
-    stem_strview_write(&token->text, file);
+    switch (token->type) {
+        case STEM_TOKEN_TEXT:
+            if (rctx->clean_line) {
+                stem_write_n_chars(' ', rctx->indent, rctx->file);
+            }
+            stem_strview_write(&token->text, rctx->file);
+            rctx->clean_line = false;
+            break;
+
+        case STEM_TOKEN_INDENT:
+            rctx->indent += ctx->profile->indent.n;
+            break;
+
+        case STEM_TOKEN_DEDENT:
+            rctx->indent -= ctx->profile->indent.n;
+            break;
+    }
 
     if (emptyline) {
-        fprintf(file, "\n\n");
+        fprintf(rctx->file, "\n\n");
+        rctx->clean_line = true;
     } else if (newline) {
-        fprintf(file, "\n");
-    } else if (space) {
-        fprintf(file, " ");
+        fprintf(rctx->file, "\n");
+        rctx->clean_line = true;
+    } else if (space && !rctx->clean_line) {
+        fprintf(rctx->file, " ");
     }
 }
 
-void stem_render(stem_tokenlist_t *tokens, FILE *file) {
+void stem_render(stem_context_t *ctx, FILE *file) {
+    stem_render_context_t rctx;
+    stem_render_context_init(&rctx, file);
+
     stem_token_iter_t iter;
-    stem_token_iter_init(&iter, tokens);
+    stem_token_iter_init(&iter, ctx->tokens);
 
     stem_token_t *token = stem_token_empty();
     stem_token_t *next  = iter.token;
@@ -46,8 +80,6 @@ void stem_render(stem_tokenlist_t *tokens, FILE *file) {
         token = next;
         next  = iter.token;
 
-        stem_render_token(token, next, file);
+        stem_render_token(ctx, &rctx, token, next);
     } while (token != next);
-
-    fprintf(file, "\n");
 }

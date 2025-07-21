@@ -9,7 +9,13 @@ void stem_init() {}
 stem_node_t *stem_class(char *name, stem_node_t **attributes, 
                         stem_node_t **methods) {
     static stem_node_descriptor_t desc = {
-        .kind = STEM_NODE_CLASS
+        .kind = STEM_NODE_CLASS,
+        .name = "class",
+        .attrs = {
+            { offsetof(stem_node_class_t, name), ATEM_ATTR_STRV },
+            { offsetof(stem_node_class_t, methods), STEM_ATTR_LIST },
+            { offsetof(stem_node_class_t, attributes), STEM_ATTR_LIST },
+        }
     };
 
     stem_node_class_t *node = stem_xmalloc(sizeof(stem_node_class_t));
@@ -24,20 +30,28 @@ stem_node_t *stem_class(char *name, stem_node_t **attributes,
 
 stem_node_t *stem_function(char *name) {
     static stem_node_descriptor_t desc = {
-        .kind = STEM_NODE_FUNCTION
+        .kind = STEM_NODE_FUNCTION,
+        .name = "function",
+        .attrs = {
+            { offsetof(stem_node_function_t, name), ATEM_ATTR_STRV },
+        }
     };
 
     stem_node_function_t *node = stem_xmalloc(sizeof(stem_node_function_t));
 
     node->base.desc = &desc;
     node->name = name;
-
+    
     return &node->base;
 }
 
 stem_node_t *stem_variable(char *name, stem_node_t *type) {
     static stem_node_descriptor_t desc = {
-        .kind = STEM_NODE_VARIABLE
+        .kind = STEM_NODE_VARIABLE,
+        .name = "variable",
+        .attrs = {
+            { offsetof(stem_node_variable_t, name), ATEM_ATTR_STRV },
+        }
     };
 
     stem_node_variable_t *node = stem_xmalloc(sizeof(stem_node_variable_t));
@@ -45,19 +59,6 @@ stem_node_t *stem_variable(char *name, stem_node_t *type) {
     node->base.desc = &desc;
     node->name = name;
     node->type = type;
-
-    return &node->base;
-}
-
-stem_node_t *stem_identifier(char *name) {
-    static stem_node_descriptor_t desc = {
-        .kind = STEM_NODE_IDENTIFIER
-    };
-
-    stem_node_identifier_t *node = stem_xmalloc(sizeof(stem_node_identifier_t));
-
-    node->base.desc = &desc;
-    node->name = name;
 
     return &node->base;
 }
@@ -94,12 +95,88 @@ stem_node_t **stem_list(stem_node_t *node, ...) {
     return list;
 }
 
-void stem_free_list(stem_node_t **list) {
+static void stem_node_list_write(stem_node_t **list, size_t indent, 
+                                 FILE *file) {
+    if (list[0] == NULL) {
+        stem_write_n_chars(' ', indent, file);
+        fprintf(file, "[]");
+        return;
+    }
+    
+    stem_write_n_chars(' ', indent, file);
+    fprintf(file, "[\n");
+
     for (size_t i = 0; list[i] != NULL; i++) {
-        stem_free_node(list[i]);
+        stem_node_write(list[i], indent + 1, file);
+        fprintf(file, ",\n");
+    }
+
+    stem_write_n_chars(' ', indent, file);
+    fprintf(file, "]");
+}
+
+void stem_node_write(stem_node_t *node, size_t indent, FILE *file) {
+    stem_node_descriptor_t *desc = node->desc;
+
+    stem_write_n_chars(' ', indent, file);
+    fprintf(file, "%s {\n", desc->name);
+
+    for (size_t i = 0; i < STEM_NODE_MAX_ATTRS; i++) {
+        stem_node_attribute_t *attr = &desc->attrs[i];
+        void *p = *(void **)((char *)node + attr->offset);
+
+        switch (attr->type) {
+            case STEM_ATTR_NONE:
+                break;
+
+            case STEM_ATTR_NODE:
+                stem_node_write(p, indent + 1, file);
+                fprintf(file, ",\n");
+                break;
+
+            case STEM_ATTR_LIST:
+                stem_node_list_write(p, indent + 1, file);
+                fprintf(file, ",\n");
+                break;
+
+            case ATEM_ATTR_STRV:
+                stem_write_n_chars(' ', indent + 1, file);
+                fprintf(file, "%s,\n", (char *)p);
+                break;
+        }
+    }
+
+    stem_write_n_chars(' ', indent, file);
+    fprintf(file, "}");
+}
+
+static void stem_node_list_free(stem_node_t **list) {
+    for (size_t i = 0; list[i] != NULL; i++) {
+        stem_node_free(list[i]);
     }
 }
 
-void stem_free_node(stem_node_t *node) {
-    (void)node;
+void stem_node_free(stem_node_t *node) {
+    stem_node_descriptor_t *desc = node->desc;
+
+    for (size_t i = 0; i < STEM_NODE_MAX_ATTRS; i++) {
+        stem_node_attribute_t *attr = &desc->attrs[i];
+        void *p = *(void **)((char *)node + attr->offset);
+
+        switch (attr->type) {
+            case STEM_ATTR_NONE:
+            case ATEM_ATTR_STRV:
+                break;
+
+            case STEM_ATTR_NODE:
+                stem_node_free(p);
+                break;
+
+            case STEM_ATTR_LIST:
+                stem_node_list_free(p);
+                break;
+        }
+    }
+
+    free(node);
 }

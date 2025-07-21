@@ -12,7 +12,10 @@ int main() {
         stem_empty()
     );
 
-    stem_free_node(root);
+    stem_node_write(root, 0, stdout);
+    fprintf(stdout, "\n");
+
+    stem_node_free(root);
 
     return 0;
 }

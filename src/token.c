@@ -16,6 +16,7 @@ stem_token_t *stem_token_empty() {
     static char empty_str = '\0';
 
     static stem_token_t empty_token = {
+        .type = STEM_TOKEN_TEXT,
         .text = {
             .start = &empty_str, .end = &empty_str
         },
@@ -24,7 +25,8 @@ stem_token_t *stem_token_empty() {
     return &empty_token;
 }
 
-stem_token_t *stem_token_emit(stem_tokenlist_t *list, char *str) {
+stem_token_t *stem_token_emit(stem_tokenlist_t *list, 
+                              stem_token_type_t type, char *str) {
     stem_token_block_t *block = list->last;
 
     if (block->size + 1 >= STEM_TOKENS_N_PER_BLOCK) {
@@ -34,7 +36,12 @@ stem_token_t *stem_token_emit(stem_tokenlist_t *list, char *str) {
     stem_token_t *token = &block->data[block->size];
     memset(token, 0, sizeof(stem_token_t));
 
-    stem_strview_init_in_pool(&token->text, &list->pool, str);
+    token->type = type;
+    if (str == NULL) {
+        stem_strview_init(&token->text, NULL, NULL);
+    } else {
+        stem_strview_init_in_pool(&token->text, &list->pool, str);
+    }
 
     block->size++;
 

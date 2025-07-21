@@ -2,6 +2,11 @@
 #include <string.h>
 #include <ctype.h>
 
+void stem_strview_init(stem_strview_t *str, char *start, char *end) {
+    str->start = start;
+    str->end = end;
+}
+
 void stem_strview_init_in_pool(stem_strview_t *str, 
                                stem_pool_t *pool, char *data) {    
     size_t size = strlen(data);
@@ -13,6 +18,11 @@ void stem_strview_init_in_pool(stem_strview_t *str,
 }
 
 void stem_strview_write_literal(stem_strview_t *str, FILE *file) {
+    if (str->start == NULL) {
+        fprintf(file, "(null)");
+        return;
+    }
+    
     fprintf(file, "\"");
 
     for (char *s = str->start; s != str->end; s++) {

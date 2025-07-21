@@ -6,12 +6,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+typedef enum {
+    STEM_TOKEN_TEXT,
+    STEM_TOKEN_INDENT,
+    STEM_TOKEN_DEDENT,
+} stem_token_type_t;
+
 typedef struct {
     bool emit;
     bool force;
 } stem_format_option_t;
 
 typedef struct {
+    stem_token_type_t type;
     stem_strview_t text;
     struct {
         stem_format_option_t space;
@@ -54,7 +61,8 @@ typedef struct {
 
 stem_token_t *stem_token_empty();
 
-stem_token_t *stem_token_emit(stem_tokenlist_t *list, char *str);
+stem_token_t *stem_token_emit(stem_tokenlist_t *list, 
+                              stem_token_type_t type, char *str);
 
 void stem_token_write(stem_token_t *token, FILE *file);
 

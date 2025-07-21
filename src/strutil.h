@@ -9,6 +9,8 @@ typedef struct {
     char *end;
 } stem_strview_t;
 
+void stem_strview_init(stem_strview_t *str, char *start, char *end);
+
 void stem_strview_init_in_pool(stem_strview_t *str, 
                                stem_pool_t *pool, char *data);
 
