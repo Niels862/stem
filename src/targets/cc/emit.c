@@ -9,9 +9,5 @@ void stem_cc_emit_function(stem_context_t *ctx, void *p) {
     stem_separator(ctx, "(");
     stem_separator(ctx, ")");
 
-    stem_c_like_open_block(ctx);
-
-    stem_separated(ctx, "(text)");
-
-    stem_c_like_close_block(ctx);
+    stem_c_like_block(ctx, node->body, true);
 }

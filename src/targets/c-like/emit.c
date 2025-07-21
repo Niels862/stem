@@ -1,11 +1,42 @@
 #include "targets/c-like/emit.h"
 
-void stem_c_like_open_block(stem_context_t *ctx) {
-    stem_set_option(stem_separator(ctx, "{"), pre, space, true);
+void stem_c_like_block(stem_context_t *ctx, stem_node_t **block, bool newline) {
+    stem_token_t *open = stem_separator(ctx, "{");
+    stem_set_option(open, pre, space, true);
+
     stem_indent(ctx);
+
+    for (size_t i = 0; !STEM_AT_LIST_END(block[i]); i++) {
+        stem_dispatch(ctx, block[i]);
+    }
+
+    stem_token_t *dedent = stem_dedent(ctx);
+    stem_set_option(dedent, pre, emptyline, false);
+
+    stem_token_t *close = stem_separator(ctx, "}");
+    stem_set_option(close, post, space, true);
+    stem_set_option(close, post, newline, newline);
+    stem_set_option_soft(close, post, emptyline, newline);
 }
 
-void stem_c_like_close_block(stem_context_t *ctx) {
-    stem_dedent(ctx);
-    stem_set_option(stem_separator(ctx, "}"), post, newline, true);
+void stem_c_like_paren_expr(stem_context_t *ctx, stem_node_t *expr) {
+    (void)expr;
+    
+    stem_set_option(stem_separator(ctx, "("), pre, space, true);
+    stem_set_option(stem_separator(ctx, ")"), post, space, true);
+}
+
+void stem_c_like_emit_if_else(stem_context_t *ctx, void *p) {
+    stem_node_if_else_t *node = p;
+
+    stem_separated(ctx, "if");
+    stem_c_like_paren_expr(ctx, node->cond);
+
+    if (stem_list_is_empty(node->else_body)) {
+        stem_c_like_block(ctx, node->then_body, true);
+    } else {
+        stem_c_like_block(ctx, node->then_body, false);
+        stem_separated(ctx, "else");
+        stem_c_like_block(ctx, node->else_body, true);
+    }
 }

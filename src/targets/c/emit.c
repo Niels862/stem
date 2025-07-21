@@ -7,6 +7,7 @@ void stem_c_target_init(stem_target_t *target) {
         [STEM_NODE_CLASS]       = NULL,
         [STEM_NODE_FUNCTION]    = &stem_cc_emit_function,
         [STEM_NODE_VARIABLE]    = NULL,
+        [STEM_NODE_IF_ELSE]     = &stem_c_like_emit_if_else,
     };
 
     target->name = "C";

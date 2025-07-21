@@ -5,7 +5,25 @@ int main() {
     stem_init();
 
     stem_node_t *root = stem_function(
-        "func"
+        "func",
+        stem_list(
+            stem_if_else(
+                NULL,
+                stem_empty(),
+                stem_list(
+                    stem_if(
+                        NULL,
+                        stem_empty()
+                    ),
+                    stem_list_end
+                )
+            ),
+            stem_if(
+                NULL,
+                stem_empty()
+            ),
+            stem_list_end
+        )
     );
 
     stem_node_write(root, 0, stdout);
@@ -18,7 +36,7 @@ int main() {
     stem_c_target_init(&target);
 
     stem_profile_t profile = {
-        .indent.n = 2,
+        .indent.n = 4,
     };
 
     stem_context_t ctx = {

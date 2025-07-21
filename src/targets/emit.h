@@ -7,6 +7,9 @@
 #define stem_set_option(token, side, opt, value) \
         stem_set_format_option(&(token)->side.opt, value, true)
 
+#define stem_set_option_soft(token, side, opt, value) \
+        stem_set_format_option(&(token)->side.opt, value, false)
+
 void stem_set_format_option(stem_format_option_t *opt, bool emit, bool force);
 
 /* Token with soft space on both sides. */

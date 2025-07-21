@@ -3,6 +3,11 @@
 #include "util.h"
 #include <stdlib.h>
 #include <stdarg.h>
+#include <assert.h>
+
+static stem_node_t stem_node_sentinel;
+
+stem_node_t *stem_list_end = &stem_node_sentinel;
 
 void stem_init() {}
 
@@ -28,12 +33,13 @@ stem_node_t *stem_class(char *name, stem_node_t **attributes,
     return &node->base;
 }
 
-stem_node_t *stem_function(char *name) {
+stem_node_t *stem_function(char *name, stem_node_t **body) {
     static stem_node_descriptor_t desc = {
         .kind = STEM_NODE_FUNCTION,
         .name = "function",
         .attrs = {
             { offsetof(stem_node_function_t, name), ATEM_ATTR_STRV },
+            { offsetof(stem_node_function_t, body), STEM_ATTR_LIST },
         }
     };
 
@@ -41,6 +47,7 @@ stem_node_t *stem_function(char *name) {
 
     node->base.desc = &desc;
     node->name = name;
+    node->body = body;
     
     return &node->base;
 }
@@ -63,10 +70,36 @@ stem_node_t *stem_variable(char *name, stem_node_t *type) {
     return &node->base;
 }
 
-stem_node_t **stem_empty() {
-    stem_node_t **list = stem_xmalloc(sizeof(void *));
+stem_node_t *stem_if_else(stem_node_t *cond, 
+                          stem_node_t **then_body, stem_node_t **else_body) {
+    static stem_node_descriptor_t desc = {
+        .kind = STEM_NODE_IF_ELSE,
+        .name = "if-else",
+        .attrs = {
+            { offsetof(stem_node_if_else_t, cond), STEM_ATTR_NODE },
+            { offsetof(stem_node_if_else_t, then_body), STEM_ATTR_LIST },
+            { offsetof(stem_node_if_else_t, else_body), STEM_ATTR_LIST },
+        }
+    };
 
-    list[0] = NULL;
+    stem_node_if_else_t *node = stem_xmalloc(sizeof(stem_node_if_else_t));
+
+    node->base.desc = &desc;
+    node->cond = cond;
+    node->then_body = then_body;
+    node->else_body = else_body;
+
+    return &node->base;
+}
+
+stem_node_t *stem_if(stem_node_t *cond, stem_node_t **body) {
+    return stem_if_else(cond, body, stem_empty());
+}
+
+stem_node_t **stem_empty() {
+    stem_node_t **list = stem_xmalloc(sizeof(stem_node_t *));
+
+    list[0] = stem_list_end;
 
     return list;
 }
@@ -76,10 +109,16 @@ stem_node_t **stem_list(stem_node_t *node, ...) {
     size_t count = 0;
 
     va_start(args, node);
-    void *arg = node;
-    while (arg != NULL) {
+    stem_node_t *arg = node;
+    while (!STEM_AT_LIST_END(arg)) {
+        if (count >= 256) {
+            fprintf(stderr, "Fatal error: missing list terminator "
+                    "after %ld entries\n", count);
+            abort();
+        }
+
         count++;
-        arg = va_arg(args, void *);
+        arg = va_arg(args, stem_node_t *);
     }
     va_end(args);
 
@@ -89,7 +128,7 @@ stem_node_t **stem_list(stem_node_t *node, ...) {
     for (size_t i = 0; i < count; ++i) {
         list[i] = (i == 0) ? node : va_arg(args, void *);
     }
-    list[count] = NULL;
+    list[count] = stem_list_end;
     va_end(args);
 
     return list;
@@ -97,7 +136,7 @@ stem_node_t **stem_list(stem_node_t *node, ...) {
 
 static void stem_node_list_write(stem_node_t **list, size_t indent, 
                                  FILE *file) {
-    if (list[0] == NULL) {
+    if (stem_list_is_empty(list)) {
         stem_write_n_chars(' ', indent, file);
         fprintf(file, "[]");
         return;
@@ -106,7 +145,7 @@ static void stem_node_list_write(stem_node_t **list, size_t indent,
     stem_write_n_chars(' ', indent, file);
     fprintf(file, "[\n");
 
-    for (size_t i = 0; list[i] != NULL; i++) {
+    for (size_t i = 0; !STEM_AT_LIST_END(list[i]); i++) {
         stem_node_write(list[i], indent + 1, file);
         fprintf(file, ",\n");
     }
@@ -115,8 +154,19 @@ static void stem_node_list_write(stem_node_t **list, size_t indent,
     fprintf(file, "]");
 }
 
+bool stem_list_is_empty(stem_node_t **list) {
+    return STEM_AT_LIST_END(list[0]);
+}
+
 void stem_node_write(stem_node_t *node, size_t indent, FILE *file) {
+    if (node == NULL) {
+        stem_write_n_chars(' ', indent, file);
+        fprintf(file, "(null)");
+        return;
+    }
+
     stem_node_descriptor_t *desc = node->desc;
+    assert(desc != NULL);
 
     stem_write_n_chars(' ', indent, file);
     fprintf(file, "%s {\n", desc->name);
@@ -151,13 +201,19 @@ void stem_node_write(stem_node_t *node, size_t indent, FILE *file) {
 }
 
 static void stem_node_list_free(stem_node_t **list) {
-    for (size_t i = 0; list[i] != NULL; i++) {
+    for (size_t i = 0; !STEM_AT_LIST_END(list[i]); i++) {
         stem_node_free(list[i]);
     }
+    free(list);
 }
 
 void stem_node_free(stem_node_t *node) {
+    if (node == NULL) {
+        return;
+    }
+
     stem_node_descriptor_t *desc = node->desc;
+    assert(desc != NULL);
 
     for (size_t i = 0; i < STEM_NODE_MAX_ATTRS; i++) {
         stem_node_attribute_t *attr = &desc->attrs[i];

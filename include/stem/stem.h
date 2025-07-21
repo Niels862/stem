@@ -2,6 +2,7 @@
 #define STEM_STEM_H
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef enum {
@@ -10,6 +11,7 @@ typedef enum {
     STEM_NODE_CLASS,
     STEM_NODE_FUNCTION,
     STEM_NODE_VARIABLE,
+    STEM_NODE_IF_ELSE,
 
     STEM_N_NODES,
 } stem_nodekind_t;
@@ -48,6 +50,7 @@ typedef struct {
 typedef struct {
     stem_node_t base;
     char *name;
+    stem_node_t **body;
 } stem_node_function_t;
 
 typedef struct {
@@ -56,18 +59,36 @@ typedef struct {
     stem_node_t *type;
 } stem_node_variable_t;
 
+typedef struct {
+    stem_node_t base;
+    stem_node_t *cond;
+    stem_node_t **then_body;
+    stem_node_t **else_body;
+} stem_node_if_else_t;
+
+extern stem_node_t *stem_list_end;
+
+#define STEM_AT_LIST_END(e) ((e) == stem_list_end)
+
 void stem_init();
 
 stem_node_t *stem_class(char *name, stem_node_t **attributes, 
                         stem_node_t **methods);
 
-stem_node_t *stem_function(char *name);
+stem_node_t *stem_function(char *name, stem_node_t **body);
 
 stem_node_t *stem_variable(char *name, stem_node_t *type);
+
+stem_node_t *stem_if_else(stem_node_t *cond, 
+                          stem_node_t **then_body, stem_node_t **else_body);
+
+stem_node_t *stem_if(stem_node_t *cond, stem_node_t **body);
 
 stem_node_t **stem_empty();
 
 stem_node_t **stem_list(stem_node_t *node, ...);
+
+bool stem_list_is_empty(stem_node_t **list);
 
 void stem_node_write(stem_node_t *node, size_t indent, FILE *file);
 
