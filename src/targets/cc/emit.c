@@ -1,5 +1,4 @@
 #include "targets/cc/emit.h"
-#include "targets/emit.h"
 #include "nodes.h"
 
 void stem_cc_emit_function(stem_context_t *ctx, void *p) {
@@ -10,11 +9,9 @@ void stem_cc_emit_function(stem_context_t *ctx, void *p) {
     stem_separator(ctx, "(");
     stem_separator(ctx, ")");
 
-    stem_set_option(stem_separator(ctx, "{"), pre, space, true);
-    stem_indent(ctx);
+    stem_c_like_open_block(ctx);
 
     stem_separated(ctx, "(text)");
 
-    stem_dedent(ctx);
-    stem_set_option(stem_separator(ctx, "}"), post, newline, true);
+    stem_c_like_close_block(ctx);
 }

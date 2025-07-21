@@ -2,11 +2,13 @@
 #define STEM_CONTEXT_H
 
 #include "token.h"
+#include "target.h"
 #include "targets/profile.h"
 
-typedef struct {
+struct stem_context_t {
     stem_tokenlist_t *tokens;
+    stem_target_t *target;
     stem_profile_t *profile;
-} stem_context_t;
+};
 
 #endif

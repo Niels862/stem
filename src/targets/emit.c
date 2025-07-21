@@ -1,4 +1,10 @@
 #include "targets/emit.h"
+#include <stdlib.h>
+
+void stem_set_format_option(stem_format_option_t *opt, bool emit, bool force) {
+    opt->emit = emit;
+    opt->force = force;
+}
 
 stem_token_t *stem_separated(stem_context_t *ctx, char *text) {
     stem_token_t *token = stem_token_emit(ctx->tokens, STEM_TOKEN_TEXT, text);
@@ -34,4 +40,17 @@ stem_token_t *stem_dedent(stem_context_t *ctx) {
     stem_set_format_option(&token->post.newline, false, true);
 
     return token;
+}
+
+void stem_dispatch(stem_context_t *ctx, stem_node_t *node) {
+    stem_node_descriptor_t *desc = node->desc;
+
+    emit_dispatch_function_t func = ctx->target->emit_dispatch[desc->kind];
+    if (func == NULL) {
+        fprintf(stderr, "Fatal error: target '%s' does not implement '%s'\n", 
+                ctx->target->name, desc->name);
+        abort();
+    }
+
+    func(ctx, node);
 }

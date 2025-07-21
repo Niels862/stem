@@ -14,16 +14,20 @@ int main() {
     stem_tokenlist_t tokens;
     stem_tokenlist_init(&tokens);
 
+    stem_target_t target;
+    stem_c_target_init(&target);
+
     stem_profile_t profile = {
         .indent.n = 2,
     };
 
     stem_context_t ctx = {
         .tokens = &tokens,
+        .target = &target,
         .profile = &profile,
     };
 
-    stem_cc_emit_function(&ctx, root);
+    stem_dispatch(&ctx, root);
     stem_render(&ctx, stdout);
 
     stem_tokenlist_free(&tokens);
