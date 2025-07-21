@@ -2,7 +2,7 @@
 #define STEM_EMIT_H
 
 #include "context.h"
-#include "nodes.h"
+#include "node.h"
 
 #define stem_set_option(token, side, opt, value) \
         stem_set_format_option(&(token)->side.opt, value, true)

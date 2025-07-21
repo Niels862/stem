@@ -1,5 +1,5 @@
 #include "targets/cc/emit.h"
-#include "nodes.h"
+#include "node.h"
 
 void stem_cc_emit_function(stem_context_t *ctx, void *p) {
     stem_node_function_t *node = p;

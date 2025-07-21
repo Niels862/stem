@@ -1,4 +1,4 @@
-#include "nodes.h"
+#include "node.h"
 #include "renderer.h"
 #include "util.h"
 #include <stdlib.h>

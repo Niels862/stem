@@ -1,7 +1,7 @@
 #ifndef STEM_TARGET_H
 #define STEM_TARGET_H
 
-#include "nodes.h"
+#include "node.h"
 
 typedef struct stem_context_t stem_context_t;
 
