@@ -67,8 +67,4 @@ typedef struct {
     stem_node_t **else_body;
 } stem_node_if_else_t;
 
-extern stem_node_t *stem_list_end;
-
-#define STEM_AT_LIST_END(e) ((e) == stem_list_end)
-
 #endif

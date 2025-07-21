@@ -1,4 +1,4 @@
-#include "stem/stem-test-all.h"
+#include "stem/stem.h"
 #include <stdio.h>
 
 int main() {
@@ -29,26 +29,11 @@ int main() {
     stem_node_write(root, 0, stdout);
     fprintf(stdout, "\n");
 
-    stem_tokenlist_t tokens;
-    stem_tokenlist_init(&tokens);
+    stem_c_profile_t profile;
+    stem_c_profile_init(&profile);
 
-    stem_target_t target;
-    stem_c_target_init(&target);
-
-    stem_profile_t profile = {
-        .indent.n = 4,
-    };
-
-    stem_context_t ctx = {
-        .tokens = &tokens,
-        .target = &target,
-        .profile = &profile,
-    };
-
-    stem_dispatch(&ctx, root);
-    stem_render(&ctx, stdout);
-
-    stem_tokenlist_free(&tokens);
+    stem_build(root, (stem_profile_t *)&profile, stdout);
+    
     stem_node_free(root);
 
     return 0;

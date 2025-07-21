@@ -1,9 +1,9 @@
 #ifndef STEM_CONTEXT_H
 #define STEM_CONTEXT_H
 
+#include "stem/profile.h"
 #include "token.h"
 #include "target.h"
-#include "targets/profile.h"
 
 struct stem_context_t {
     stem_tokenlist_t *tokens;

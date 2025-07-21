@@ -9,8 +9,6 @@ static stem_node_t stem_node_sentinel;
 
 stem_node_t *stem_list_end = &stem_node_sentinel;
 
-void stem_init() {}
-
 stem_node_t *stem_class(char *name, stem_node_t **attributes, 
                         stem_node_t **methods) {
     static stem_node_descriptor_t desc = {

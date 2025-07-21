@@ -29,4 +29,8 @@ void stem_node_write(stem_node_t *node, size_t indent, FILE *file);
 
 void stem_node_free(stem_node_t *node);
 
+extern stem_node_t *stem_list_end;
+
+#define STEM_AT_LIST_END(e) ((e) == stem_list_end)
+
 #endif
