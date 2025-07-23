@@ -5,8 +5,6 @@
 #include "stem/profile.h"
 #include "stem/target.h"
 #include <stdio.h>
-#include <stdbool.h>
-#include <stddef.h>
 
 void stem_init();
 

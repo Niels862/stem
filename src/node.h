@@ -9,6 +9,7 @@
 typedef enum {
     STEM_NODE_NONE,
 
+    STEM_NODE_MODULE,
     STEM_NODE_CLASS,
     STEM_NODE_FUNCTION,
     STEM_NODE_VARIABLE,
@@ -40,6 +41,12 @@ typedef struct {
 struct stem_node_t {
     stem_node_descriptor_t *desc;
 };
+
+typedef struct {
+    stem_node_t base;
+    stem_node_t **classes;
+    stem_node_t **functions;
+} stem_node_module_t;
 
 typedef struct {
     stem_node_t base;

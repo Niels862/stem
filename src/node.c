@@ -9,6 +9,25 @@ static stem_node_t stem_node_sentinel;
 
 stem_node_t *stem_list_end = &stem_node_sentinel;
 
+stem_node_t *stem_module(stem_node_t **classes, stem_node_t **functions) {
+    static stem_node_descriptor_t desc = {
+        .kind = STEM_NODE_MODULE,
+        .name = "module",
+        .attrs = {
+            { offsetof(stem_node_module_t, classes), STEM_ATTR_LIST },
+            { offsetof(stem_node_module_t, functions), STEM_ATTR_LIST },
+        }
+    };
+
+    stem_node_module_t *node = stem_xmalloc(sizeof(stem_node_module_t));
+
+    node->base.desc = &desc;
+    node->classes = classes;
+    node->functions = functions;
+
+    return &node->base;
+}
+
 stem_node_t *stem_class(char *name, stem_node_t **attributes, 
                         stem_node_t **methods) {
     static stem_node_descriptor_t desc = {
