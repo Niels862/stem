@@ -2,6 +2,7 @@
 #define STEM_NODE_H
 
 #include "stem/stem.h"
+#include "node-forward.h"
 #include "symbol.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -44,39 +45,39 @@ struct stem_node_t {
     stem_node_descriptor_t *desc;
 };
 
-typedef struct {
+struct stem_node_module_t {
     stem_node_t base;
     stem_node_t **classes;
     stem_node_t **functions;
     stem_symboltable_t syms;
-} stem_node_module_t;
+};
 
-typedef struct {
+struct stem_node_class_t {
     stem_node_t base;
     char *name;
     stem_node_t **attributes;
     stem_node_t **methods;
     stem_symboltable_t syms;
-} stem_node_class_t;
+};
 
-typedef struct {
+struct stem_node_function_t {
     stem_node_t base;
     char *name;
     stem_node_t **body;
     stem_symboltable_t syms;
-} stem_node_function_t;
+};
 
-typedef struct {
+struct stem_node_variable_t {
     stem_node_t base;
     char *name;
     stem_node_t *type;
-} stem_node_variable_t;
+};
 
-typedef struct {
+struct stem_node_if_else_t {
     stem_node_t base;
     stem_node_t *cond;
     stem_node_t **then_body;
     stem_node_t **else_body;
-} stem_node_if_else_t;
+};
 
 #endif

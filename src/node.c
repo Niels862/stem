@@ -2,6 +2,7 @@
 #include "renderer.h"
 #include "util.h"
 #include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
 #include <assert.h>
 
@@ -26,10 +27,6 @@ stem_node_t *stem_module(stem_node_t **classes, stem_node_t **functions) {
     node->classes = classes;
     node->functions = functions;
     stem_symboltable_init(&node->syms);
-
-    stem_strmap_insert(&node->syms, "t1", NULL);
-    stem_strmap_insert(&node->syms, "test2", NULL);
-    stem_strmap_insert(&node->syms, "13", NULL);
 
     return &node->base;
 }
@@ -204,29 +201,28 @@ void stem_node_write(stem_node_t *node, size_t indent, FILE *file) {
 
         switch (attr->type) {
             case STEM_ATTR_NONE:
-                break;
+                continue;;
 
             case STEM_ATTR_NODE:
                 stem_node_write(*p, indent + 1, file);
-                fprintf(file, ",\n");
                 break;
 
             case STEM_ATTR_LIST:
                 stem_node_list_write(*p, indent + 1, file);
-                fprintf(file, ",\n");
                 break;
 
             case STEM_ATTR_STRVIEW:
                 stem_write_n_chars(' ', indent + 1, file);
-                fprintf(file, "%s,\n", (char *)*p);
+                stem_str_write_literal(*p, strlen(*p), file);
                 break;
 
             case STEM_ATTR_SYMTABLE:
                 stem_write_n_chars(' ', indent + 1, file);
                 stem_symboltable_write_oneline((stem_symboltable_t *)p, file);
-                fprintf(file ,",\n");
                 break;
         }
+
+        fprintf(file, ",\n");
     }
 
     stem_write_n_chars(' ', indent, file);

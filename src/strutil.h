@@ -18,4 +18,6 @@ void stem_strview_write_literal(stem_strview_t *str, FILE *file);
 
 void stem_strview_write(stem_strview_t *str, FILE *file);
 
+void stem_str_write_literal(char *str, int len, FILE *file);
+
 #endif

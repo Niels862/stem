@@ -23,11 +23,20 @@ void stem_strview_write_literal(stem_strview_t *str, FILE *file) {
         return;
     }
     
+    stem_str_write_literal(str->start, (int)(str->end - str->start), file);
+}
+
+void stem_strview_write(stem_strview_t *str, FILE *file) {
+    fprintf(file, "%.*s", (int)(str->end - str->start), str->start);
+}
+
+void stem_str_write_literal(char *str, int len, FILE *file) {
     fprintf(file, "\"");
 
-    for (char *s = str->start; s != str->end; s++) {
-
-        switch (*s) {
+    for (int i = 0; i < len; i++) {
+        char c = str[i];
+        
+        switch (c) {
             case '\n':
                 fprintf(file, "\\n");
                 break;
@@ -45,20 +54,16 @@ void stem_strview_write_literal(stem_strview_t *str, FILE *file) {
                 break;
 
             default:
-                if (isprint(*s)) {
-                    fprintf(file, "%c", *s);
-                } else if (*s < 10) {
-                    fprintf(file, "\\%d", *s);
+                if (isprint(c)) {
+                    fprintf(file, "%c", c);
+                } else if (c < 10) {
+                    fprintf(file, "\\%d", c);
                 } else {
-                    fprintf(file, "\\x%02X", *s);
+                    fprintf(file, "\\x%02X", c);
                 }
                 break;
         }
     }
 
     fprintf(file, "\"");
-}
-
-void stem_strview_write(stem_strview_t *str, FILE *file) {
-    fprintf(file, "%.*s", (int)(str->end - str->start), str->start);
 }

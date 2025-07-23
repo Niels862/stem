@@ -21,9 +21,6 @@ int main() {
         )
     );
 
-    stem_node_write(root, 0, stdout);
-    fprintf(stdout, "\n");
-
     stem_c_profile_t profile;
     stem_c_profile_init(&profile);
 
