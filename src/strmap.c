@@ -118,13 +118,18 @@ void *stem_strmap_lookup(stem_strmap_t *map, char *key) {
     }
 }
 
+static bool stem_strmap_iter_valid(stem_strmap_iter_t *iter) {
+    return iter->pentry != NULL;
+}
+
 static void stem_strmap_iter_fill_entry(stem_strmap_iter_t *iter, 
                                         stem_strmap_entry_t **pentry, 
                                         size_t idx) {
-    iter->pentry = pentry;
-    iter->idx = idx;
     iter->key = (*pentry)->key;
     iter->value = (*pentry)->value;
+    iter->pentry = pentry;
+    iter->pnext = &(*pentry)->next;
+    iter->idx = idx;
 }
 
 static void stem_strmap_iter_find_next_entry(stem_strmap_iter_t *iter,
@@ -140,13 +145,14 @@ static void stem_strmap_iter_find_next_entry(stem_strmap_iter_t *iter,
         }
     }
 
-    iter->pentry = NULL;
     iter->key = NULL;
     iter->value = NULL;
+    iter->pentry = NULL;
+    iter->pnext = NULL;
     iter->idx = 0;
 }
 
-void stem_strmap_iter_init(stem_strmap_t *map, stem_strmap_iter_t *iter) {
+void stem_strmap_iter_init(stem_strmap_iter_t *iter, stem_strmap_t *map) {
     iter->map = map;
     stem_strmap_iter_find_next_entry(iter, 0);
 }
@@ -156,20 +162,22 @@ void stem_strmap_iter_next(stem_strmap_iter_t *iter) {
         return;
     }
 
-    stem_strmap_entry_t *entry = *iter->pentry;
-    if (entry->next == NULL) {
+    if (*iter->pnext == NULL) {
         stem_strmap_iter_find_next_entry(iter, iter->idx + 1);
     } else {
-        stem_strmap_iter_fill_entry(iter, &entry->next, iter->idx);
+        stem_strmap_iter_fill_entry(iter, iter->pnext, iter->idx);
     }
 }
 
 void stem_strmap_iter_delete(stem_strmap_iter_t *iter) {
     assert(!stem_strmap_iter_at_end(iter));
+    assert(stem_strmap_iter_valid(iter));
 
-    *iter->pentry = (*iter->pentry)->next;    
+    *iter->pentry = (*iter->pentry)->next;  
+    iter->pnext = iter->pentry;
+    iter->pentry = NULL;  
 }
 
 bool stem_strmap_iter_at_end(stem_strmap_iter_t *iter) {
-    return iter->pentry == NULL;
+    return iter->key == NULL;
 }

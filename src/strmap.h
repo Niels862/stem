@@ -19,13 +19,19 @@ typedef struct {
 } stem_strmap_t;
 
 typedef struct {
+    /* Exposed key-value pair. Value of key exclusively determines if iter is 
+       at_end. */
     char *key;
     void *value;
 
     stem_strmap_t *map;
-    stem_strmap_entry_t **pentry;
-    size_t idx;
 
+    /* NULL if at_end or iter invalid (after deletion) */
+    stem_strmap_entry_t **pentry;
+
+    /* Only indicates (ref to) next in bucket, can be NULL but not at_end */
+    stem_strmap_entry_t **pnext;
+    size_t idx;
 } stem_strmap_iter_t;
 
 void stem_strmap_init(stem_strmap_t *map);
@@ -44,7 +50,7 @@ void *stem_strmap_delete(stem_strmap_t *map, char *key);
 
 void *stem_strmap_lookup(stem_strmap_t *map, char *key);
 
-void stem_strmap_iter_init(stem_strmap_t *map, stem_strmap_iter_t *iter);
+void stem_strmap_iter_init(stem_strmap_iter_t *iter, stem_strmap_t *map);
 
 void stem_strmap_iter_next(stem_strmap_iter_t *iter);
 

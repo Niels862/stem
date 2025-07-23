@@ -10,6 +10,8 @@ void stem_symboltable_init(stem_symboltable_t *table);
 
 void stem_symboltable_destruct(stem_symboltable_t *table);
 
-void stem_symboltable_write(stem_symboltable_t *table, FILE *file);
+void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file);
+
+void stem_symboltable_insert(stem_symboltable_t *table, char *sym);
 
 #endif
