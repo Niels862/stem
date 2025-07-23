@@ -16,6 +16,7 @@ stem_node_t *stem_module(stem_node_t **classes, stem_node_t **functions) {
         .attrs = {
             { offsetof(stem_node_module_t, classes), STEM_ATTR_LIST },
             { offsetof(stem_node_module_t, functions), STEM_ATTR_LIST },
+            { offsetof(stem_node_module_t, syms), STEM_ATTR_SYMTABLE },
         }
     };
 
@@ -24,6 +25,11 @@ stem_node_t *stem_module(stem_node_t **classes, stem_node_t **functions) {
     node->base.desc = &desc;
     node->classes = classes;
     node->functions = functions;
+    stem_symboltable_init(&node->syms);
+
+    stem_strmap_insert(&node->syms, "t1", NULL);
+    stem_strmap_insert(&node->syms, "test2", NULL);
+    stem_strmap_insert(&node->syms, "13", NULL);
 
     return &node->base;
 }
@@ -34,9 +40,10 @@ stem_node_t *stem_class(char *name, stem_node_t **attributes,
         .kind = STEM_NODE_CLASS,
         .name = "class",
         .attrs = {
-            { offsetof(stem_node_class_t, name), ATEM_ATTR_STRV },
+            { offsetof(stem_node_class_t, name), STEM_ATTR_STRVIEW },
             { offsetof(stem_node_class_t, methods), STEM_ATTR_LIST },
             { offsetof(stem_node_class_t, attributes), STEM_ATTR_LIST },
+            { offsetof(stem_node_class_t, syms), STEM_ATTR_SYMTABLE },
         }
     };
 
@@ -46,6 +53,7 @@ stem_node_t *stem_class(char *name, stem_node_t **attributes,
     node->name = name;
     node->attributes = attributes;
     node->methods = methods;
+    stem_symboltable_init(&node->syms);
 
     return &node->base;
 }
@@ -55,8 +63,9 @@ stem_node_t *stem_function(char *name, stem_node_t **body) {
         .kind = STEM_NODE_FUNCTION,
         .name = "function",
         .attrs = {
-            { offsetof(stem_node_function_t, name), ATEM_ATTR_STRV },
+            { offsetof(stem_node_function_t, name), STEM_ATTR_STRVIEW },
             { offsetof(stem_node_function_t, body), STEM_ATTR_LIST },
+            { offsetof(stem_node_function_t, syms), STEM_ATTR_SYMTABLE },
         }
     };
 
@@ -65,7 +74,8 @@ stem_node_t *stem_function(char *name, stem_node_t **body) {
     node->base.desc = &desc;
     node->name = name;
     node->body = body;
-    
+    stem_symboltable_init(&node->syms);
+
     return &node->base;
 }
 
@@ -74,7 +84,7 @@ stem_node_t *stem_variable(char *name, stem_node_t *type) {
         .kind = STEM_NODE_VARIABLE,
         .name = "variable",
         .attrs = {
-            { offsetof(stem_node_variable_t, name), ATEM_ATTR_STRV },
+            { offsetof(stem_node_variable_t, name), STEM_ATTR_STRVIEW },
         }
     };
 
@@ -190,25 +200,31 @@ void stem_node_write(stem_node_t *node, size_t indent, FILE *file) {
 
     for (size_t i = 0; i < STEM_NODE_MAX_ATTRS; i++) {
         stem_node_attribute_t *attr = &desc->attrs[i];
-        void *p = *(void **)((char *)node + attr->offset);
+        void **p = (void **)((char *)node + attr->offset);
 
         switch (attr->type) {
             case STEM_ATTR_NONE:
                 break;
 
             case STEM_ATTR_NODE:
-                stem_node_write(p, indent + 1, file);
+                stem_node_write(*p, indent + 1, file);
                 fprintf(file, ",\n");
                 break;
 
             case STEM_ATTR_LIST:
-                stem_node_list_write(p, indent + 1, file);
+                stem_node_list_write(*p, indent + 1, file);
                 fprintf(file, ",\n");
                 break;
 
-            case ATEM_ATTR_STRV:
+            case STEM_ATTR_STRVIEW:
                 stem_write_n_chars(' ', indent + 1, file);
-                fprintf(file, "%s,\n", (char *)p);
+                fprintf(file, "%s,\n", (char *)*p);
+                break;
+
+            case STEM_ATTR_SYMTABLE:
+                stem_write_n_chars(' ', indent + 1, file);
+                stem_symboltable_write_oneline((stem_symboltable_t *)p, file);
+                fprintf(file ,",\n");
                 break;
         }
     }
@@ -234,20 +250,23 @@ void stem_node_free(stem_node_t *node) {
 
     for (size_t i = 0; i < STEM_NODE_MAX_ATTRS; i++) {
         stem_node_attribute_t *attr = &desc->attrs[i];
-        void *p = *(void **)((char *)node + attr->offset);
+        void **p = *(void **)((char *)node + attr->offset);
 
         switch (attr->type) {
             case STEM_ATTR_NONE:
-            case ATEM_ATTR_STRV:
+            case STEM_ATTR_STRVIEW:
                 break;
 
             case STEM_ATTR_NODE:
-                stem_node_free(p);
+                stem_node_free(*p);
                 break;
 
             case STEM_ATTR_LIST:
-                stem_node_list_free(p);
+                stem_node_list_free(*p);
                 break;
+
+            case STEM_ATTR_SYMTABLE:
+                stem_symboltable_destruct((stem_symboltable_t *)p);
         }
     }
 

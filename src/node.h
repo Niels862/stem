@@ -2,6 +2,7 @@
 #define STEM_NODE_H
 
 #include "stem/stem.h"
+#include "symbol.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -22,7 +23,8 @@ typedef enum {
     STEM_ATTR_NONE,
     STEM_ATTR_NODE,
     STEM_ATTR_LIST,
-    ATEM_ATTR_STRV,
+    STEM_ATTR_STRVIEW,
+    STEM_ATTR_SYMTABLE,
 } stem_node_attribute_type_t;
 
 typedef struct {
@@ -46,6 +48,7 @@ typedef struct {
     stem_node_t base;
     stem_node_t **classes;
     stem_node_t **functions;
+    stem_symboltable_t syms;
 } stem_node_module_t;
 
 typedef struct {
@@ -53,12 +56,14 @@ typedef struct {
     char *name;
     stem_node_t **attributes;
     stem_node_t **methods;
+    stem_symboltable_t syms;
 } stem_node_class_t;
 
 typedef struct {
     stem_node_t base;
     char *name;
     stem_node_t **body;
+    stem_symboltable_t syms;
 } stem_node_function_t;
 
 typedef struct {

@@ -22,13 +22,19 @@ void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file) {
     stem_strmap_iter_t iter;
     stem_strmap_iter_init(&iter, table);
 
+    bool first = true;
     while (!stem_strmap_iter_at_end(&iter)) {
-        fprintf(file, "%s ", iter.key);
+        if (!first) {
+            fprintf(file, ", ");
+        } else {
+            first = false;
+        }
+        fprintf(file, "%s", iter.key);
 
         stem_strmap_iter_next(&iter);
     }
 
-    fprintf(file, "}}");
+    fprintf(file, " }}");
 }
 
 void stem_symboltable_insert(stem_symboltable_t *table, char *sym) {

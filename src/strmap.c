@@ -22,7 +22,7 @@ static void stem_strmap_lookup_internal(stem_strmap_t *map, char *key,
                                         uint32_t *hash, size_t *idx, 
                                         stem_strmap_entry_t ***pentry) {
     *hash = stem_strhash(key);
-    *idx = map->cap % *hash;
+    *idx = *hash % map->cap;
 
     *pentry = &map->entries[*idx];
     stem_strmap_entry_t *entry = **pentry;
@@ -60,6 +60,24 @@ void stem_strmap_destruct(stem_strmap_t *map) {
     }
 
     free(map->entries);
+}
+
+void stem_strmap_write(stem_strmap_t *map, FILE *file) {
+    fprintf(file, "{\n");
+    for (size_t i = 0; i < map->cap; i++) {
+        fprintf(file, "  bucket-%ld: ", i);
+
+        stem_strmap_entry_t *entry = map->entries[i];
+        if (entry == NULL) {
+            fprintf(file, "(empty)\n");
+        } else {
+            while (entry != NULL) {
+                fprintf(file, "%s ", entry->key);
+            }
+            fprintf(file, "\n");
+        }
+    }
+    fprintf(file, "}\n");
 }
 
 void *stem_strmap_insert(stem_strmap_t *map, char *key, void *value) {

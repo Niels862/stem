@@ -6,7 +6,7 @@ int main() {
     stem_node_t *root = stem_module(
         stem_list(
             stem_class(
-                "test",
+                "Class",
                 stem_empty(),
                 stem_empty()
             ),
@@ -14,7 +14,7 @@ int main() {
         ),
         stem_list(
             stem_function(
-                "test",
+                "func",
                 stem_empty()
             ),
             stem_list_end

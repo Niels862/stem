@@ -1,6 +1,7 @@
 #ifndef STEM_STRMAP_H
 #define STEM_STRMAP_H
 
+#include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -37,6 +38,8 @@ typedef struct {
 void stem_strmap_init(stem_strmap_t *map);
 
 void stem_strmap_destruct(stem_strmap_t *map);
+
+void stem_strmap_write(stem_strmap_t *map, FILE *file);
 
 /* If key exists: does not insert and returns value. 
  * Otherwise: returns NULL. 
