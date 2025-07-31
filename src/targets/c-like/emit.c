@@ -19,15 +19,15 @@ void stem_c_like_block(stem_context_t *ctx, stem_node_t **block, bool newline) {
     stem_set_option_soft(close, post, emptyline, newline);
 }
 
-void stem_c_like_paren_expr(stem_context_t *ctx, stem_node_t *expr) {
-    (void)expr;
+void stem_c_like_paren_expr(stem_context_t *ctx, stem_node_t *vnode) {
+    (void)vnode;
     
     stem_set_option(stem_separator(ctx, "("), pre, space, true);
     stem_set_option(stem_separator(ctx, ")"), post, space, true);
 }
 
-void stem_c_like_emit_if_else(stem_context_t *ctx, void *p) {
-    stem_node_if_else_t *node = p;
+void stem_c_like_emit_if_else(stem_context_t *ctx, stem_node_t *vnode) {
+    stem_node_if_else_t *node = stem_cast_if_else(vnode);
 
     stem_separated(ctx, "if");
     stem_c_like_paren_expr(ctx, node->cond);

@@ -45,7 +45,7 @@ stem_token_t *stem_dedent(stem_context_t *ctx) {
 void stem_dispatch(stem_context_t *ctx, stem_node_t *node) {
     stem_node_descriptor_t *desc = node->desc;
 
-    emit_dispatch_function_t func = ctx->target->emit_dispatch[desc->kind];
+    stem_emit_dispatch_function_t func = ctx->target->emit_dispatch[desc->kind];
     if (func == NULL) {
         fprintf(stderr, "Fatal error: target '%s' does not implement '%s'\n", 
                 ctx->target->name, desc->name);

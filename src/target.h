@@ -6,11 +6,11 @@
 
 typedef struct stem_context_t stem_context_t;
 
-typedef void(*emit_dispatch_function_t)(stem_context_t *, void *);
+typedef void(*stem_emit_dispatch_function_t)(stem_context_t *, stem_node_t *);
 
 typedef struct {
     char *name;
-    emit_dispatch_function_t emit_dispatch[STEM_N_NODES];
+    stem_emit_dispatch_function_t emit_dispatch[STEM_N_NODES];
 } stem_target_t;
 
 void stem_target_init(stem_target_t *target, stem_target_id_t id);

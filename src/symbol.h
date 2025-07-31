@@ -32,8 +32,8 @@ void stem_symboltable_destruct(stem_symboltable_t *table);
 
 void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file);
 
-void stem_symbol_declare(stem_symboltable_t *table, 
-                             char *name, stem_symbol_t *sym);
+void symboltable_add(stem_symboltable_t *table, 
+                     char *name, stem_symbol_t *sym);
 
 stem_symbol_t *stem_symbol_class(stem_node_class_t *node);
 

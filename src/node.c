@@ -125,6 +125,8 @@ stem_node_t **stem_empty() {
 
     list[0] = stem_list_end;
 
+    fprintf(stderr, "list at %p\n", (void *)list);
+
     return list;
 }
 
@@ -230,7 +232,10 @@ void stem_node_write(stem_node_t *node, size_t indent, FILE *file) {
 }
 
 static void stem_node_list_free(stem_node_t **list) {
+    fprintf(stderr, "freeing list at %p\n", (void *)list);
+
     for (size_t i = 0; !STEM_AT_LIST_END(list[i]); i++) {
+        fprintf(stderr, "[[%ld]] %p\n", i, (void *)list[i]);
         stem_node_free(list[i]);
     }
     free(list);
@@ -240,13 +245,13 @@ void stem_node_free(stem_node_t *node) {
     if (node == NULL) {
         return;
     }
-
+    
     stem_node_descriptor_t *desc = node->desc;
     assert(desc != NULL);
 
-    for (size_t i = 0; i < STEM_NODE_MAX_ATTRS; i++) {
+    for (size_t i = 0; i < STEM_NODE_MAX_ATTRS; i++) {            
         stem_node_attribute_t *attr = &desc->attrs[i];
-        void **p = *(void **)((char *)node + attr->offset);
+        void **p = (void **)((char *)node + attr->offset);
 
         switch (attr->type) {
             case STEM_ATTR_NONE:
@@ -254,11 +259,11 @@ void stem_node_free(stem_node_t *node) {
                 break;
 
             case STEM_ATTR_NODE:
-                stem_node_free(*p);
+                stem_node_free((stem_node_t *)*p);
                 break;
 
             case STEM_ATTR_LIST:
-                stem_node_list_free(*p);
+                stem_node_list_free((stem_node_t **)*p);
                 break;
 
             case STEM_ATTR_SYMTABLE:
@@ -268,3 +273,9 @@ void stem_node_free(stem_node_t *node) {
 
     free(node);
 }
+
+STEM_NODE_SOURCE(STEM_NODE_MODULE, module)
+STEM_NODE_SOURCE(STEM_NODE_CLASS, class)
+STEM_NODE_SOURCE(STEM_NODE_FUNCTION, function)
+STEM_NODE_SOURCE(STEM_NODE_VARIABLE, variable)
+STEM_NODE_SOURCE(STEM_NODE_IF_ELSE, if_else)

@@ -1,10 +1,8 @@
 #include "stem/stem.h"
 #include <stdio.h>
 
-int main() {
-    stem_init();
-
-    stem_node_t *root = stem_function(
+static stem_node_t *build_function() {
+    return stem_function(
         "func",
         stem_list(
             stem_if_else(
@@ -25,9 +23,18 @@ int main() {
             stem_list_end
         )
     );
+}
 
-    stem_node_write(root, 0, stdout);
-    fprintf(stdout, "\n");
+int main() {
+    stem_init();
+
+    stem_node_t *root = stem_module(
+        stem_empty(),
+        stem_list(
+            build_function(),
+            stem_list_end
+        )
+    );
 
     stem_c_profile_t profile;
     stem_c_profile_init(&profile);

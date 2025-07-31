@@ -191,7 +191,11 @@ void stem_strmap_iter_delete(stem_strmap_iter_t *iter) {
     assert(!stem_strmap_iter_at_end(iter));
     assert(stem_strmap_iter_valid(iter));
 
-    *iter->pentry = (*iter->pentry)->next;  
+    stem_strmap_entry_t *entry = *iter->pentry;
+    stem_strmap_entry_t *next = entry->next;
+    free(entry);
+
+    *iter->pentry = next;  
     iter->pnext = iter->pentry;
     iter->pentry = NULL;  
 }

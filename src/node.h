@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <assert.h>
 
 typedef enum {
     STEM_NODE_NONE,
@@ -79,5 +80,23 @@ struct stem_node_if_else_t {
     stem_node_t **then_body;
     stem_node_t **else_body;
 };
+
+#define STEM_NODE_TYPE(t) stem_node_##t##_t
+
+#define STEM_NODE_HEADER(e, t) \
+    STEM_NODE_TYPE(t) *stem_cast_##t(stem_node_t *node);
+
+#define STEM_NODE_SOURCE(e, t) \
+    STEM_NODE_TYPE(t) *stem_cast_##t(stem_node_t *node) { \
+        assert(node != NULL); \
+        assert(node->desc->kind == e); \
+        return (STEM_NODE_TYPE(t) *)node; \
+    }
+
+STEM_NODE_HEADER(STEM_NODE_MODULE, module)
+STEM_NODE_HEADER(STEM_NODE_CLASS, class)
+STEM_NODE_HEADER(STEM_NODE_FUNCTION, function)
+STEM_NODE_HEADER(STEM_NODE_VARIABLE, variable)
+STEM_NODE_HEADER(STEM_NODE_IF_ELSE, if_else)
 
 #endif
