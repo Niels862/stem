@@ -19,6 +19,8 @@ typedef enum {
     STEM_NODE_VARIABLE,
     STEM_NODE_IF_ELSE,
 
+    STEM_NODE_BOOL_LIT,
+
     STEM_N_NODES,
 } stem_nodekind_t;
 
@@ -28,6 +30,9 @@ typedef enum {
     STEM_ATTR_LIST,
     STEM_ATTR_STRVIEW,
     STEM_ATTR_SYMTABLE,
+    STEM_ATTR_BOOL,
+    STEM_ATTR_INT,
+    STEM_ATTR_FLOAT,
 } stem_node_attribute_type_t;
 
 typedef struct {
@@ -44,7 +49,9 @@ typedef struct {
 } stem_node_descriptor_t;
 
 typedef struct {
-    stem_pool_t typepool;
+    /* Owns objects that are only valid during the `build` phase: 
+       types and symbols */
+    stem_pool_t pool;
 } stem_node_context_t;
 
 struct stem_node_t {
@@ -85,6 +92,11 @@ struct stem_node_if_else_t {
     stem_node_t *cond;
     stem_node_t **then_body;
     stem_node_t **else_body;
+};
+
+struct stem_node_bool_t {
+    stem_node_t base;
+    bool value;
 };
 
 #define STEM_NODE_TYPE(t) stem_node_##t##_t

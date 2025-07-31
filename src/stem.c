@@ -11,11 +11,11 @@ void stem_init() {
 }
 
 static void stem_node_context_init(stem_node_context_t *nctx) {
-    stem_pool_init(&nctx->typepool, 256);
+    stem_pool_init(&nctx->pool, 256);
 }
 
 static void stem_node_context_destruct(stem_node_context_t *nctx) {
-    stem_pool_destruct(&nctx->typepool);
+    stem_pool_destruct(&nctx->pool);
 }
 
 static void stem_visitor_set_context(stem_node_t *node, void *nctx) {

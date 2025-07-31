@@ -6,18 +6,18 @@ static stem_node_t *build_function() {
         "func",
         stem_list(
             stem_if_else(
-                NULL,
+                stem_false(),
                 stem_empty(),
                 stem_list(
                     stem_if(
-                        NULL,
+                        stem_true(),
                         stem_empty()
                     ),
                     stem_list_end
                 )
             ),
             stem_if(
-                NULL,
+                stem_true(),
                 stem_empty()
             ),
             stem_list_end

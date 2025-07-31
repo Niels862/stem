@@ -7,7 +7,7 @@ static void stem_declare_function(stem_node_t *vnode,
                                   stem_symboltable_t *syms) {
     stem_node_function_t *node = stem_cast_function(vnode);
 
-    stem_symbol_t *sym = stem_symbol_function(node);
+    stem_symbol_t *sym = stem_symbol_function(node, &node->base.ctx->pool);
     symboltable_add(syms, node->name, sym);
 }
 
@@ -19,7 +19,7 @@ static void stem_declare_class(stem_node_t *vnode,
         stem_declare_function(node->methods[i], &node->syms);
     }
 
-    stem_symbol_t *sym = stem_symbol_class(node);
+    stem_symbol_t *sym = stem_symbol_class(node, &node->base.ctx->pool);
     symboltable_add(syms, node->name, sym);
 }
 

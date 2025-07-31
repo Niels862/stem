@@ -10,6 +10,12 @@ static stem_node_t stem_node_sentinel;
 
 stem_node_t *stem_list_end = &stem_node_sentinel;
 
+static void stem_node_base_init(stem_node_t *base, 
+                                stem_node_descriptor_t *desc) {
+    base->desc = desc;
+    base->ctx = NULL;
+}
+
 stem_node_t *stem_module(stem_node_t **classes, stem_node_t **functions) {
     static stem_node_descriptor_t desc = {
         .kind = STEM_NODE_MODULE,
@@ -23,7 +29,7 @@ stem_node_t *stem_module(stem_node_t **classes, stem_node_t **functions) {
 
     stem_node_module_t *node = stem_xmalloc(sizeof(stem_node_module_t));
 
-    node->base.desc = &desc;
+    stem_node_base_init(&node->base, &desc);
     node->classes = classes;
     node->functions = functions;
     stem_symboltable_init(&node->syms);
@@ -46,7 +52,7 @@ stem_node_t *stem_class(char *name, stem_node_t **attributes,
 
     stem_node_class_t *node = stem_xmalloc(sizeof(stem_node_class_t));
 
-    node->base.desc = &desc;
+    stem_node_base_init(&node->base, &desc);
     node->name = name;
     node->attributes = attributes;
     node->methods = methods;
@@ -68,7 +74,7 @@ stem_node_t *stem_function(char *name, stem_node_t **body) {
 
     stem_node_function_t *node = stem_xmalloc(sizeof(stem_node_function_t));
 
-    node->base.desc = &desc;
+    stem_node_base_init(&node->base, &desc);
     node->name = name;
     node->body = body;
     stem_symboltable_init(&node->syms);
@@ -87,7 +93,7 @@ stem_node_t *stem_variable(char *name, stem_node_t *type) {
 
     stem_node_variable_t *node = stem_xmalloc(sizeof(stem_node_variable_t));
 
-    node->base.desc = &desc;
+    stem_node_base_init(&node->base, &desc);
     node->name = name;
     node->type = type;
 
@@ -108,7 +114,7 @@ stem_node_t *stem_if_else(stem_node_t *cond,
 
     stem_node_if_else_t *node = stem_xmalloc(sizeof(stem_node_if_else_t));
 
-    node->base.desc = &desc;
+    stem_node_base_init(&node->base, &desc);
     node->cond = cond;
     node->then_body = then_body;
     node->else_body = else_body;
@@ -120,12 +126,35 @@ stem_node_t *stem_if(stem_node_t *cond, stem_node_t **body) {
     return stem_if_else(cond, body, stem_empty());
 }
 
+static stem_node_t *stem_bool(bool value) {
+    static stem_node_descriptor_t desc = {
+        .kind = STEM_NODE_BOOL_LIT,
+        .name = "bool",
+        .attrs = {
+            { offsetof(stem_node_bool_t, value), STEM_ATTR_BOOL },
+        }
+    };
+
+    stem_node_bool_t *node = stem_xmalloc(sizeof(stem_node_bool_t));
+
+    stem_node_base_init(&node->base, &desc);
+    node->value = value;
+
+    return &node->base;
+}
+
+stem_node_t *stem_true() {
+    return stem_bool(true);
+}
+
+stem_node_t *stem_false() {
+    return stem_bool(false);
+}
+
 stem_node_t **stem_empty() {
     stem_node_t **list = stem_xmalloc(sizeof(stem_node_t *));
 
     list[0] = stem_list_end;
-
-    fprintf(stderr, "list at %p\n", (void *)list);
 
     return list;
 }
@@ -222,6 +251,21 @@ void stem_node_write(stem_node_t *node, size_t indent, FILE *file) {
                 stem_write_n_chars(' ', indent + 1, file);
                 stem_symboltable_write_oneline((stem_symboltable_t *)p, file);
                 break;
+
+            case STEM_ATTR_BOOL:
+                stem_write_n_chars(' ', indent + 1, file);
+                fprintf(file, "%s", *(bool *)p ? "true" : "false");
+                break;
+
+            case STEM_ATTR_INT:
+                stem_write_n_chars(' ', indent + 1, file);
+                fprintf(file, "%ld", *(int64_t *)p);
+                break;
+
+            case STEM_ATTR_FLOAT:
+                stem_write_n_chars(' ', indent + 1, file);
+                fprintf(file, "%f", *(double *)p);
+                break;
         }
 
         fprintf(file, ",\n");
@@ -252,10 +296,6 @@ void stem_node_free(stem_node_t *node) {
         void **p = (void **)((char *)node + attr->offset);
 
         switch (attr->type) {
-            case STEM_ATTR_NONE:
-            case STEM_ATTR_STRVIEW:
-                break;
-
             case STEM_ATTR_NODE:
                 stem_node_free((stem_node_t *)*p);
                 break;
@@ -266,6 +306,9 @@ void stem_node_free(stem_node_t *node) {
 
             case STEM_ATTR_SYMTABLE:
                 stem_symboltable_destruct((stem_symboltable_t *)p);
+
+            default:
+                break;
         }
     }
 
@@ -301,17 +344,15 @@ void stem_node_visit(stem_node_t *node, void *ctx,
         void **p = (void **)((char *)node + attr->offset);
 
         switch (attr->type) {
-            case STEM_ATTR_NONE:
-            case STEM_ATTR_STRVIEW:
-            case STEM_ATTR_SYMTABLE:
-                break;
-
             case STEM_ATTR_NODE:
                 stem_node_visit((stem_node_t *)*p, ctx, func);
                 break;
 
             case STEM_ATTR_LIST:
                 stem_node_list_visit((stem_node_t **)*p, ctx, func);
+                break;
+
+            default:
                 break;
         }
     }

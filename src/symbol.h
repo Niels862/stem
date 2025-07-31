@@ -2,6 +2,7 @@
 #define STEM_SYMBOL_H
 
 #include "node-forward.h"
+#include "pool.h"
 #include "strmap.h"
 #include <stdio.h>
 
@@ -35,8 +36,10 @@ void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file);
 void symboltable_add(stem_symboltable_t *table, 
                      char *name, stem_symbol_t *sym);
 
-stem_symbol_t *stem_symbol_class(stem_node_class_t *node);
+stem_symbol_t *stem_symbol_class(stem_node_class_t *node, 
+                                 stem_pool_t *pool);
 
-stem_symbol_t *stem_symbol_function(stem_node_function_t *node);
+stem_symbol_t *stem_symbol_function(stem_node_function_t *node, 
+                                    stem_pool_t *pool);
 
 #endif
