@@ -67,7 +67,7 @@ void stem_tokenlist_free(stem_tokenlist_t *list) {
         block = next;
     }
 
-    stem_pool_free(&list->pool);
+    stem_pool_destruct(&list->pool);
 }
 
 void stem_tokenlist_write(stem_tokenlist_t *list, FILE *file) {

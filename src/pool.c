@@ -19,7 +19,7 @@ void stem_pool_init(stem_pool_t *pool, size_t blocksize) {
     pool->first = stem_pool_alloc_new_block(blocksize, NULL);
 }
 
-void stem_pool_free(stem_pool_t *pool) {
+void stem_pool_destruct(stem_pool_t *pool) {
     stem_pool_block_t *block = pool->first;
 
     while (block != NULL) {

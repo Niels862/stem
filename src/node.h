@@ -4,6 +4,7 @@
 #include "stem/stem.h"
 #include "node-forward.h"
 #include "symbol.h"
+#include "pool.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -42,8 +43,13 @@ typedef struct {
     stem_node_attribute_t attrs[STEM_NODE_MAX_ATTRS];
 } stem_node_descriptor_t;
 
+typedef struct {
+    stem_pool_t typepool;
+} stem_node_context_t;
+
 struct stem_node_t {
     stem_node_descriptor_t *desc;
+    stem_node_context_t *ctx;
 };
 
 struct stem_node_module_t {
@@ -98,5 +104,8 @@ STEM_NODE_HEADER(STEM_NODE_CLASS, class)
 STEM_NODE_HEADER(STEM_NODE_FUNCTION, function)
 STEM_NODE_HEADER(STEM_NODE_VARIABLE, variable)
 STEM_NODE_HEADER(STEM_NODE_IF_ELSE, if_else)
+
+void stem_node_visit(stem_node_t *node, void *ctx, 
+                     void(*func)(stem_node_t *, void *));
 
 #endif

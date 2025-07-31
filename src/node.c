@@ -232,10 +232,8 @@ void stem_node_write(stem_node_t *node, size_t indent, FILE *file) {
 }
 
 static void stem_node_list_free(stem_node_t **list) {
-    fprintf(stderr, "freeing list at %p\n", (void *)list);
 
     for (size_t i = 0; !STEM_AT_LIST_END(list[i]); i++) {
-        fprintf(stderr, "[[%ld]] %p\n", i, (void *)list[i]);
         stem_node_free(list[i]);
     }
     free(list);
@@ -279,3 +277,42 @@ STEM_NODE_SOURCE(STEM_NODE_CLASS, class)
 STEM_NODE_SOURCE(STEM_NODE_FUNCTION, function)
 STEM_NODE_SOURCE(STEM_NODE_VARIABLE, variable)
 STEM_NODE_SOURCE(STEM_NODE_IF_ELSE, if_else)
+
+static void stem_node_list_visit(stem_node_t **list, void *ctx, 
+                                 void(*func)(stem_node_t *, void *)) {
+    for (size_t i = 0; !STEM_AT_LIST_END(list[i]); i++) {
+        func(list[i], ctx);
+    }
+}
+
+void stem_node_visit(stem_node_t *node, void *ctx, 
+                     void(*func)(stem_node_t *, void *)) {
+    if (node == NULL) {
+        return;
+    }
+
+    func(node, ctx);
+
+    stem_node_descriptor_t *desc = node->desc;
+    assert(desc != NULL);
+
+    for (size_t i = 0; i < STEM_NODE_MAX_ATTRS; i++) {            
+        stem_node_attribute_t *attr = &desc->attrs[i];
+        void **p = (void **)((char *)node + attr->offset);
+
+        switch (attr->type) {
+            case STEM_ATTR_NONE:
+            case STEM_ATTR_STRVIEW:
+            case STEM_ATTR_SYMTABLE:
+                break;
+
+            case STEM_ATTR_NODE:
+                stem_node_visit((stem_node_t *)*p, ctx, func);
+                break;
+
+            case STEM_ATTR_LIST:
+                stem_node_list_visit((stem_node_t **)*p, ctx, func);
+                break;
+        }
+    }
+}

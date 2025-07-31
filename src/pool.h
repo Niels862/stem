@@ -16,7 +16,7 @@ typedef struct {
 
 void stem_pool_init(stem_pool_t *pool, size_t blocksize);
 
-void stem_pool_free(stem_pool_t *pool);
+void stem_pool_destruct(stem_pool_t *pool);
 
 void *stem_pool_alloc(stem_pool_t *pool, size_t size);
 
