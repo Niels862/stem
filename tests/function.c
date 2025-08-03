@@ -1,26 +1,21 @@
 #include "stem/stem.h"
+#include "stem/builder.h"
 #include <stdio.h>
 
 static stem_node_t *build_function() {
-    return stem_function(
+    return Function(
         "func",
-        stem_list(
-            stem_if_else(
-                stem_false(),
-                stem_empty(),
-                stem_list(
-                    stem_if(
-                        stem_true(),
-                        stem_empty()
-                    ),
-                    stem_list_end
+        List(
+            IfElse(
+                False,
+                Empty,
+                List(
+                    If(
+                        True,
+                        Empty
+                    )
                 )
-            ),
-            stem_if(
-                stem_true(),
-                stem_empty()
-            ),
-            stem_list_end
+            )
         )
     );
 }
@@ -28,11 +23,10 @@ static stem_node_t *build_function() {
 int main() {
     stem_init();
 
-    stem_node_t *root = stem_module(
-        stem_empty(),
-        stem_list(
-            build_function(),
-            stem_list_end
+    stem_node_t *root = Module(
+        Empty,
+        List(
+            build_function()
         )
     );
 

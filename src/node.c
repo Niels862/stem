@@ -126,7 +126,7 @@ stem_node_t *stem_if(stem_node_t *cond, stem_node_t **body) {
     return stem_if_else(cond, body, stem_empty());
 }
 
-static stem_node_t *stem_bool(bool value) {
+stem_node_t *stem_bool(bool value) {
     static stem_node_descriptor_t desc = {
         .kind = STEM_NODE_BOOL_LIT,
         .name = "bool",

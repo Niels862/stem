@@ -21,6 +21,8 @@ stem_node_t *stem_if_else(stem_node_t *cond,
 
 stem_node_t *stem_if(stem_node_t *cond, stem_node_t **body);
 
+stem_node_t *stem_bool(bool value);
+
 stem_node_t *stem_true();
 
 stem_node_t *stem_false();
