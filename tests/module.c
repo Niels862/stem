@@ -1,24 +1,16 @@
 #include "stem/stem.h"
+#include "stem/builder.h"
+
+stem_node_t *build_class() {
+    return Class("Test", Empty, Empty);
+}
 
 int main() {
     stem_init();
 
-    stem_node_t *root = stem_module(
-        stem_list(
-            stem_class(
-                "Class",
-                stem_empty(),
-                stem_empty()
-            ),
-            stem_list_end
-        ),
-        stem_list(
-            stem_function(
-                "func",
-                stem_empty()
-            ),
-            stem_list_end
-        )
+    stem_node_t *root = Module(
+        List( build_class() ),
+        Empty
     );
 
     stem_c_profile_t profile;

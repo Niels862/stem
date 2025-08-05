@@ -8,6 +8,6 @@
 
 void stem_c_target_init(stem_target_t *target);
 
-void stem_emit_c(stem_node_t *root, FILE *file);
+void stem_c_emit_class(stem_context_t *ctx, stem_node_t *vnode);
 
 #endif
