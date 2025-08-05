@@ -19,11 +19,19 @@ void stem_c_like_block(stem_context_t *ctx, stem_node_t **block, bool newline) {
     stem_set_option_soft(close, post, emptyline, newline);
 }
 
-void stem_c_like_paren_expr(stem_context_t *ctx, stem_node_t *vnode) {
-    (void)vnode;
-    
+void stem_c_like_paren_expr(stem_context_t *ctx, stem_node_t *vnode) {    
     stem_set_option(stem_separator(ctx, "("), pre, space, true);
+    stem_dispatch(ctx, vnode);
     stem_set_option(stem_separator(ctx, ")"), post, space, true);
+}
+
+void stem_c_like_bool_lit(stem_context_t *ctx, stem_node_t *vnode) {
+    stem_node_bool_lit_t *node = stem_cast_bool_lit(vnode);
+    if (node->value) {
+        stem_separated(ctx, "true");
+    } else {
+        stem_separated(ctx, "false");
+    }
 }
 
 void stem_c_like_emit_if_else(stem_context_t *ctx, stem_node_t *vnode) {

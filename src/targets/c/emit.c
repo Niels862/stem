@@ -9,6 +9,7 @@ void stem_c_target_init(stem_target_t *target) {
         [STEM_NODE_FUNCTION]    = &stem_cc_emit_function,
         [STEM_NODE_VARIABLE]    = NULL,
         [STEM_NODE_IF_ELSE]     = &stem_c_like_emit_if_else,
+        [STEM_NODE_BOOL_LIT]    = &stem_c_like_bool_lit,
     };
 
     target->name = "C";
@@ -17,6 +18,3 @@ void stem_c_target_init(stem_target_t *target) {
     }
 }
 
-void stem_emit_c(stem_node_t *root, FILE *file) {
-    (void)root, (void)file;
-}

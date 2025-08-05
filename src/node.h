@@ -94,7 +94,7 @@ struct stem_node_if_else_t {
     stem_node_t **else_body;
 };
 
-struct stem_node_bool_t {
+struct stem_node_bool_lit_t {
     stem_node_t base;
     bool value;
 };
@@ -116,6 +116,7 @@ STEM_NODE_HEADER(STEM_NODE_CLASS, class)
 STEM_NODE_HEADER(STEM_NODE_FUNCTION, function)
 STEM_NODE_HEADER(STEM_NODE_VARIABLE, variable)
 STEM_NODE_HEADER(STEM_NODE_IF_ELSE, if_else)
+STEM_NODE_HEADER(STEM_NODE_BOOL_LIT, bool_lit)
 
 void stem_node_visit(stem_node_t *node, void *ctx, 
                      void(*func)(stem_node_t *, void *));

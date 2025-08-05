@@ -131,11 +131,11 @@ stem_node_t *stem_bool(bool value) {
         .kind = STEM_NODE_BOOL_LIT,
         .name = "bool",
         .attrs = {
-            { offsetof(stem_node_bool_t, value), STEM_ATTR_BOOL },
+            { offsetof(stem_node_bool_lit_t, value), STEM_ATTR_BOOL },
         }
     };
 
-    stem_node_bool_t *node = stem_xmalloc(sizeof(stem_node_bool_t));
+    stem_node_bool_lit_t *node = stem_xmalloc(sizeof(stem_node_bool_lit_t));
 
     stem_node_base_init(&node->base, &desc);
     node->value = value;
@@ -320,6 +320,7 @@ STEM_NODE_SOURCE(STEM_NODE_CLASS, class)
 STEM_NODE_SOURCE(STEM_NODE_FUNCTION, function)
 STEM_NODE_SOURCE(STEM_NODE_VARIABLE, variable)
 STEM_NODE_SOURCE(STEM_NODE_IF_ELSE, if_else)
+STEM_NODE_SOURCE(STEM_NODE_BOOL_LIT, bool_lit)
 
 static void stem_node_list_visit(stem_node_t **list, void *ctx, 
                                  void(*func)(stem_node_t *, void *)) {

@@ -11,6 +11,6 @@ typedef struct stem_node_variable_t stem_node_variable_t;
 
 typedef struct stem_node_if_else_t stem_node_if_else_t;
 
-typedef struct stem_node_bool_t stem_node_bool_t;
+typedef struct stem_node_bool_lit_t stem_node_bool_lit_t;
 
 #endif

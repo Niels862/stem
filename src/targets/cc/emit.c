@@ -7,6 +7,10 @@ void stem_cc_emit_module(stem_context_t *ctx, stem_node_t *vnode) {
     for (size_t i = 0; !STEM_AT_LIST_END(node->classes[i]); i++) {
         stem_dispatch(ctx, node->classes[i]);
     }
+
+    for (size_t i = 0; !STEM_AT_LIST_END(node->functions[i]); i++) {
+        stem_dispatch(ctx, node->functions[i]);
+    }
 }
 
 void stem_cc_emit_function(stem_context_t *ctx, stem_node_t *vnode) {

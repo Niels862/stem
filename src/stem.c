@@ -40,12 +40,7 @@ void stem_build(stem_node_t *root, stem_profile_t *profile, FILE *file) {
     stem_node_visit(root, &nctx, stem_visitor_set_context);
 
     stem_semantic_analysis(root);
-
-    stem_node_write(root, 0, stdout);
-    fprintf(stdout, "\n");
-
     stem_dispatch(&ctx, root);
-
     stem_render(&ctx, file);
 
     stem_tokenlist_free(&tokens);
