@@ -33,7 +33,7 @@ void stem_c_like_paren_expr(stem_context_t *ctx, stem_node_t *vnode) {
 }
 
 void stem_c_like_emit_bool_lit(stem_context_t *ctx, stem_node_t *vnode) {
-    stem_node_bool_lit_t *node = stem_cast_bool_lit(vnode);
+    stem_node_bool_lit_t *node = stem_node_cast_bool_lit(vnode);
     if (node->value) {
         stem_separated(ctx, "true");
     } else {
@@ -42,7 +42,7 @@ void stem_c_like_emit_bool_lit(stem_context_t *ctx, stem_node_t *vnode) {
 }
 
 void stem_c_like_emit_if_else(stem_context_t *ctx, stem_node_t *vnode) {
-    stem_node_if_else_t *node = stem_cast_if_else(vnode);
+    stem_node_if_else_t *node = stem_node_cast_if_else(vnode);
 
     stem_separated(ctx, "if");
     stem_c_like_paren_expr(ctx, node->cond);

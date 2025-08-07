@@ -52,6 +52,9 @@ typedef struct {
     /* Owns objects that are only valid during the `build` phase: 
        types and symbols */
     stem_pool_t pool;
+
+    /* The current symbol table of the current node in the AST traversal. */
+    stem_symboltable_t *curr;
 } stem_node_context_t;
 
 struct stem_node_t {
@@ -102,10 +105,10 @@ struct stem_node_bool_lit_t {
 #define STEM_NODE_TYPE(t) stem_node_##t##_t
 
 #define STEM_NODE_HEADER(e, t) \
-    STEM_NODE_TYPE(t) *stem_cast_##t(stem_node_t *node);
+    STEM_NODE_TYPE(t) *stem_node_cast_##t(stem_node_t *node);
 
 #define STEM_NODE_SOURCE(e, t) \
-    STEM_NODE_TYPE(t) *stem_cast_##t(stem_node_t *node) { \
+    STEM_NODE_TYPE(t) *stem_node_cast_##t(stem_node_t *node) { \
         assert(node != NULL); \
         assert(node->desc->kind == e); \
         return (STEM_NODE_TYPE(t) *)node; \

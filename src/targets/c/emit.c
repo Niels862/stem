@@ -19,7 +19,7 @@ void stem_c_target_init(stem_target_t *target) {
 }
 
 void stem_c_emit_class(stem_context_t *ctx, stem_node_t *vnode) {
-    stem_node_class_t *node = stem_cast_class(vnode);
+    stem_node_class_t *node = stem_node_cast_class(vnode);
 
     stem_set_option(stem_separated(ctx, "struct"), pre, newline, true);
     stem_separated(ctx, node->name);

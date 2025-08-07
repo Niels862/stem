@@ -3,20 +3,31 @@
 #include "strutil.h"
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 void stem_symboltable_init(stem_symboltable_t *table) {
-    stem_strmap_init(table);
+    stem_strmap_init(&table->map);
+    table->prev = NULL;
 }
 
 void stem_symboltable_destruct(stem_symboltable_t *table) {
-    stem_strmap_destruct(table);
+    stem_strmap_destruct(&table->map);
+}
+
+void stem_symboltable_link_prev(stem_symboltable_t *table, 
+                                stem_symboltable_t *prev) {
+    assert(table->prev == NULL);
+    assert(table != prev);
+    assert(prev != NULL);
+
+    table->prev = prev;
 }
 
 void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file) {
     fprintf(file, "{{ ");
 
     stem_strmap_iter_t iter;
-    stem_strmap_iter_init(&iter, table);
+    stem_strmap_iter_init(&iter, &table->map);
 
     bool first = true;
     while (!stem_strmap_iter_at_end(&iter)) {
@@ -33,10 +44,24 @@ void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file) {
     fprintf(file, " }}");
 }
 
-void symboltable_add(stem_symboltable_t *table, 
-                     char *name, stem_symbol_t *sym) {
-    stem_symbol_t *old = stem_strmap_insert(table, name, sym);
-    (void)old;
+void stem_symboltable_add(stem_symboltable_t *table, 
+                          char *name, stem_symbol_t *sym) {
+    stem_symbol_t *old = stem_strmap_insert(&table->map, name, sym);
+    (void)old; // FIXME: error if old != NULL
+}
+
+stem_symbol_t *stem_symboltable_lookup(stem_symboltable_t *table, char *name) {
+    stem_symbol_t *symbol = stem_strmap_lookup(&table->map, name);
+    
+    if (symbol != NULL) {
+        return symbol;
+    }
+
+    if (table->prev == NULL) {
+        return NULL;
+    }
+
+    return stem_symboltable_lookup(table->prev, name);
 }
 
 stem_symbol_t *stem_symbol_class(stem_node_class_t *node,

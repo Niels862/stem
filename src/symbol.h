@@ -6,7 +6,10 @@
 #include "strmap.h"
 #include <stdio.h>
 
-typedef stem_strmap_t stem_symboltable_t;
+typedef struct stem_symboltable_t {
+    stem_strmap_t map;
+    struct stem_symboltable_t *prev;
+} stem_symboltable_t;
 
 typedef enum {
     STEM_SYM_CLASS,
@@ -31,10 +34,15 @@ void stem_symboltable_init(stem_symboltable_t *table);
 
 void stem_symboltable_destruct(stem_symboltable_t *table);
 
+void stem_symboltable_link_prev(stem_symboltable_t *table, 
+                                stem_symboltable_t *prev);
+
 void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file);
 
-void symboltable_add(stem_symboltable_t *table, 
-                     char *name, stem_symbol_t *sym);
+void stem_symboltable_add(stem_symboltable_t *table, 
+                          char *name, stem_symbol_t *sym);
+
+stem_symbol_t *stem_symboltable_lookup(stem_symboltable_t *table, char *name);
 
 stem_symbol_t *stem_symbol_class(stem_node_class_t *node, 
                                  stem_pool_t *pool);
