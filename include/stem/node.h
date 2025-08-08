@@ -27,6 +27,8 @@ stem_node_t *stem_true();
 
 stem_node_t *stem_false();
 
+stem_node_t *stem_ident(char *name);
+
 stem_node_t **stem_empty();
 
 stem_node_t **stem_list(stem_node_t *node, ...);

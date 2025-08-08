@@ -45,6 +45,8 @@ void stem_symboltable_add(stem_symboltable_t *table,
 
 stem_symbol_t *stem_symboltable_lookup(stem_symboltable_t *table, char *name);
 
+char *stem_symbolkind_name(stem_symbolkind_t kind);
+
 stem_symbol_t *stem_symbol_class(stem_node_class_t *node, 
                                  stem_pool_t *pool);
 

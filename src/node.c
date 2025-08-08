@@ -82,12 +82,13 @@ stem_node_t *stem_function(char *name, stem_node_t **body) {
     return &node->base;
 }
 
-stem_node_t *stem_variable(char *name, stem_node_t *type) {
+stem_node_t *stem_variable(char *name, stem_node_t *anno) {
     static stem_node_descriptor_t desc = {
         .kind = STEM_NODE_VARIABLE,
         .name = "variable",
         .attrs = {
             { offsetof(stem_node_variable_t, name), STEM_ATTR_STRVIEW },
+            { offsetof(stem_node_variable_t, anno), STEM_ATTR_NODE },
         }
     };
 
@@ -95,7 +96,7 @@ stem_node_t *stem_variable(char *name, stem_node_t *type) {
 
     stem_node_base_init(&node->base, &desc);
     node->name = name;
-    node->type = type;
+    node->anno = anno;
 
     return &node->base;
 }
@@ -149,6 +150,22 @@ stem_node_t *stem_true() {
 
 stem_node_t *stem_false() {
     return stem_bool(false);
+}
+
+stem_node_t *stem_ident(char *name) {
+    static stem_node_descriptor_t desc = {
+        .name = "ident",
+        .attrs = {
+            { offsetof(stem_node_ident_t, name), STEM_ATTR_STRVIEW },
+        }
+    };
+
+    stem_node_ident_t *node = stem_xmalloc(sizeof(stem_node_ident_t));
+
+    stem_node_base_init(&node->base, &desc);
+    node->name = name;
+
+    return &node->base;
 }
 
 stem_node_t **stem_empty() {
@@ -321,6 +338,7 @@ STEM_NODE_SOURCE(STEM_NODE_FUNCTION, function)
 STEM_NODE_SOURCE(STEM_NODE_VARIABLE, variable)
 STEM_NODE_SOURCE(STEM_NODE_IF_ELSE, if_else)
 STEM_NODE_SOURCE(STEM_NODE_BOOL_LIT, bool_lit)
+STEM_NODE_SOURCE(STEM_NODE_IDENT, ident)
 
 static void stem_node_list_visit(stem_node_t **list, void *ctx, 
                                  void(*func)(stem_node_t *, void *)) {

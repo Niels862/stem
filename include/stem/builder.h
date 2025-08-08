@@ -23,4 +23,6 @@
 #define True stem_true()
 #define False stem_false()
 
+#define Ident stem_ident
+
 #endif

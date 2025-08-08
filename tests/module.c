@@ -2,7 +2,9 @@
 #include "stem/builder.h"
 
 stem_node_t *build_function(char *name) {
-    return Function(name, Empty);
+    return Function(name, List(
+        Variable("var1", Ident("int"))
+    ));
 }
 
 stem_node_t *build_class() {

@@ -36,7 +36,11 @@ void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file) {
         } else {
             first = false;
         }
+        
+        stem_symbol_t *sym = iter.value;
+
         stem_str_write_literal(iter.key, strlen(iter.key), file);
+        fprintf(file, ": <%s>", stem_symbolkind_name(sym->kind));
 
         stem_strmap_iter_next(&iter);
     }
@@ -47,7 +51,12 @@ void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file) {
 void stem_symboltable_add(stem_symboltable_t *table, 
                           char *name, stem_symbol_t *sym) {
     stem_symbol_t *old = stem_strmap_insert(&table->map, name, sym);
-    (void)old; // FIXME: error if old != NULL
+
+    if (old != NULL) {
+        fprintf(stderr, 
+                "Fatal error: `%s` already defined in this scope\n", name);
+        abort();
+    }
 }
 
 stem_symbol_t *stem_symboltable_lookup(stem_symboltable_t *table, char *name) {
@@ -62,6 +71,15 @@ stem_symbol_t *stem_symboltable_lookup(stem_symboltable_t *table, char *name) {
     }
 
     return stem_symboltable_lookup(table->parent, name);
+}
+
+char *stem_symbolkind_name(stem_symbolkind_t kind) {
+    switch (kind) {
+        case STEM_SYM_CLASS:    return "class";
+        case STEM_SYM_FUNCTION: return "function";
+    }
+
+    return "";
 }
 
 stem_symbol_t *stem_symbol_class(stem_node_class_t *node,

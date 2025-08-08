@@ -21,6 +21,8 @@ typedef enum {
 
     STEM_NODE_BOOL_LIT,
 
+    STEM_NODE_IDENT,
+
     STEM_N_NODES,
 } stem_nodekind_t;
 
@@ -87,7 +89,7 @@ struct stem_node_function_t {
 struct stem_node_variable_t {
     stem_node_t base;
     char *name;
-    stem_node_t *type;
+    stem_node_t *anno;
 };
 
 struct stem_node_if_else_t {
@@ -100,6 +102,11 @@ struct stem_node_if_else_t {
 struct stem_node_bool_lit_t {
     stem_node_t base;
     bool value;
+};
+
+struct stem_node_ident_t {
+    stem_node_t base;
+    char *name;
 };
 
 #define STEM_NODE_TYPE(t) stem_node_##t##_t
@@ -120,6 +127,7 @@ STEM_NODE_HEADER(STEM_NODE_FUNCTION, function)
 STEM_NODE_HEADER(STEM_NODE_VARIABLE, variable)
 STEM_NODE_HEADER(STEM_NODE_IF_ELSE, if_else)
 STEM_NODE_HEADER(STEM_NODE_BOOL_LIT, bool_lit)
+STEM_NODE_HEADER(STEM_NODE_IDENT, ident)
 
 void stem_node_visit(stem_node_t *node, void *ctx, 
                      void(*func)(stem_node_t *, void *));
