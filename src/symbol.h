@@ -2,6 +2,7 @@
 #define STEM_SYMBOL_H
 
 #include "node-forward.h"
+#include "type.h"
 #include "pool.h"
 #include "strmap.h"
 #include <stdio.h>
