@@ -7,20 +7,20 @@
 
 void stem_symboltable_init(stem_symboltable_t *table) {
     stem_strmap_init(&table->map);
-    table->prev = NULL;
+    table->parent = NULL;
 }
 
 void stem_symboltable_destruct(stem_symboltable_t *table) {
     stem_strmap_destruct(&table->map);
 }
 
-void stem_symboltable_link_prev(stem_symboltable_t *table, 
-                                stem_symboltable_t *prev) {
-    assert(table->prev == NULL);
-    assert(table != prev);
-    assert(prev != NULL);
+void stem_symboltable_link_parent(stem_symboltable_t *table, 
+                                  stem_symboltable_t *parent) {
+    assert(table->parent == NULL);
+    assert(table != parent);
+    assert(parent != NULL);
 
-    table->prev = prev;
+    table->parent = parent;
 }
 
 void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file) {
@@ -57,11 +57,11 @@ stem_symbol_t *stem_symboltable_lookup(stem_symboltable_t *table, char *name) {
         return symbol;
     }
 
-    if (table->prev == NULL) {
+    if (table->parent == NULL) {
         return NULL;
     }
 
-    return stem_symboltable_lookup(table->prev, name);
+    return stem_symboltable_lookup(table->parent, name);
 }
 
 stem_symbol_t *stem_symbol_class(stem_node_class_t *node,

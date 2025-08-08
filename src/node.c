@@ -325,7 +325,7 @@ STEM_NODE_SOURCE(STEM_NODE_BOOL_LIT, bool_lit)
 static void stem_node_list_visit(stem_node_t **list, void *ctx, 
                                  void(*func)(stem_node_t *, void *)) {
     for (size_t i = 0; !STEM_AT_LIST_END(list[i]); i++) {
-        func(list[i], ctx);
+        stem_node_visit(list[i], ctx, func);
     }
 }
 
@@ -357,4 +357,24 @@ void stem_node_visit(stem_node_t *node, void *ctx,
                 break;
         }
     }
+}
+
+stem_symboltable_t *stem_node_get_scope(stem_node_t *node) {
+    assert(node != NULL);
+    assert(node->ctx != NULL);
+    assert(node->ctx->curr != NULL);
+
+    return node->ctx->curr;
+}
+
+void stem_node_enter_scope(stem_node_t *node, stem_symboltable_t *table) {
+    assert(node->ctx->curr == table->parent);
+
+    node->ctx->curr = table;
+}
+
+void stem_node_leave_scope(stem_node_t *node, stem_symboltable_t *table) {
+    assert(node->ctx->curr == table);
+
+    node->ctx->curr = table->parent;
 }

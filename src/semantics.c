@@ -3,9 +3,18 @@
 #include "type.h"
 #include <stdlib.h>
 
+static stem_type_t *stem_semantic_dispatch(stem_node_t *node);
+
+static void stem_semantic_dispatch_list(stem_node_t **list);
+
 static void stem_declare_function(stem_node_t *vnode, 
                                   stem_symboltable_t *syms) {
     stem_node_function_t *node = stem_node_cast_function(vnode);
+
+    stem_symboltable_link_parent(&node->syms, stem_node_get_scope(vnode));
+    stem_node_enter_scope(vnode, &node->syms);
+
+    stem_node_leave_scope(vnode, &node->syms);
 
     stem_symbol_t *sym = stem_symbol_function(node, &node->base.ctx->pool);
     stem_symboltable_add(syms, node->name, sym);
@@ -15,9 +24,14 @@ static void stem_declare_class(stem_node_t *vnode,
                                stem_symboltable_t *syms) {
     stem_node_class_t *node = stem_node_cast_class(vnode);
 
+    stem_symboltable_link_parent(&node->syms, stem_node_get_scope(vnode));
+    stem_node_enter_scope(vnode, &node->syms);
+
     for (size_t i = 0; !STEM_AT_LIST_END(node->methods[i]); i++) {
-        stem_declare_function(node->methods[i], &node->syms);
+        stem_declare_function(node->methods[i], stem_node_get_scope(vnode));
     }
+
+    stem_node_leave_scope(vnode, &node->syms);
 
     stem_symbol_t *sym = stem_symbol_class(node, &node->base.ctx->pool);
     stem_symboltable_add(syms, node->name, sym);
@@ -26,25 +40,40 @@ static void stem_declare_class(stem_node_t *vnode,
 static stem_type_t *stem_semantic_module(stem_node_t *vnode) {
     stem_node_module_t *node = stem_node_cast_module(vnode);
 
+    stem_node_enter_scope(vnode, &node->syms);
+
     for (size_t i = 0; !STEM_AT_LIST_END(node->classes[i]); i++) {
-        stem_declare_class(node->classes[i], &node->syms);
+        stem_declare_class(node->classes[i], stem_node_get_scope(vnode));
     }
 
     for (size_t i = 0; !STEM_AT_LIST_END(node->functions[i]); i++) {
-        stem_declare_function(node->functions[i], &node->syms);
+        stem_declare_function(node->functions[i], stem_node_get_scope(vnode));
     }
+
+    stem_semantic_dispatch_list(node->classes);
+    stem_semantic_dispatch_list(node->functions);
+
+    stem_node_leave_scope(vnode, &node->syms);
 
     return NULL;
 }
 
 static stem_type_t *stem_semantic_class(stem_node_t *vnode) {
-    (void)vnode;
+    stem_node_class_t *node = stem_node_cast_class(vnode);
 
+    stem_node_enter_scope(vnode, &node->syms);
+    
+    stem_node_leave_scope(vnode, &node->syms);
+   
     return NULL;
 }
 
 static stem_type_t *stem_semantic_function(stem_node_t *vnode) {
-    (void)vnode;
+    stem_node_function_t *node = stem_node_cast_function(vnode);
+
+    stem_node_enter_scope(vnode, &node->syms);
+
+    stem_node_leave_scope(vnode, &node->syms);
 
     return NULL;
 }
@@ -61,7 +90,7 @@ static stem_type_t *stem_semantic_if_else(stem_node_t *vnode) {
     return NULL;
 }
 
-stem_type_t *stem_semantic_dispatch(stem_node_t *node) {
+static stem_type_t *stem_semantic_dispatch(stem_node_t *node) {
     switch (node->desc->kind) {
         case STEM_NODE_MODULE:      return stem_semantic_module(node);
         case STEM_NODE_CLASS:       return stem_semantic_class(node);
@@ -76,6 +105,12 @@ stem_type_t *stem_semantic_dispatch(stem_node_t *node) {
     fprintf(stderr, "Error: unhandled case in semantic analysis: '%s'\n",
             node->desc->name);
     abort();
+}
+
+static void stem_semantic_dispatch_list(stem_node_t **list) {
+    for (size_t i = 0; !STEM_AT_LIST_END(list[i]); i++) {
+        stem_semantic_dispatch(list[i]);
+    }
 }
 
 void stem_semantic_analysis(stem_node_t *root) {

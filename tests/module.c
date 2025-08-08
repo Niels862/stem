@@ -1,8 +1,19 @@
 #include "stem/stem.h"
 #include "stem/builder.h"
 
+stem_node_t *build_function(char *name) {
+    return Function(name, Empty);
+}
+
 stem_node_t *build_class() {
-    return Class("Test", Empty, Empty);
+    return Class(
+        "Class",
+        Empty,
+        List(
+            build_function("method1"),
+            build_function("method2")
+        )
+    );
 }
 
 int main() {

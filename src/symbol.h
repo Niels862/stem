@@ -8,7 +8,7 @@
 
 typedef struct stem_symboltable_t {
     stem_strmap_t map;
-    struct stem_symboltable_t *prev;
+    struct stem_symboltable_t *parent;
 } stem_symboltable_t;
 
 typedef enum {
@@ -34,8 +34,8 @@ void stem_symboltable_init(stem_symboltable_t *table);
 
 void stem_symboltable_destruct(stem_symboltable_t *table);
 
-void stem_symboltable_link_prev(stem_symboltable_t *table, 
-                                stem_symboltable_t *prev);
+void stem_symboltable_link_parent(stem_symboltable_t *table, 
+                                  stem_symboltable_t *parent);
 
 void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file);
 

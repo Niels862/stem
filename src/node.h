@@ -124,4 +124,10 @@ STEM_NODE_HEADER(STEM_NODE_BOOL_LIT, bool_lit)
 void stem_node_visit(stem_node_t *node, void *ctx, 
                      void(*func)(stem_node_t *, void *));
 
+stem_symboltable_t *stem_node_get_scope(stem_node_t *node);
+
+void stem_node_enter_scope(stem_node_t *node, stem_symboltable_t *table);
+
+void stem_node_leave_scope(stem_node_t *node, stem_symboltable_t *table);
+
 #endif

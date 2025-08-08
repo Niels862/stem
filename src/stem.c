@@ -12,6 +12,7 @@ void stem_init() {
 
 static void stem_node_context_init(stem_node_context_t *nctx) {
     stem_pool_init(&nctx->pool, 256);
+    nctx->curr = NULL;
 }
 
 static void stem_node_context_destruct(stem_node_context_t *nctx) {
@@ -42,6 +43,9 @@ void stem_build(stem_node_t *root, stem_profile_t *profile, FILE *file) {
     stem_semantic_analysis(root);
     stem_dispatch(&ctx, root);
     stem_render(&ctx, file);
+
+    stem_node_write(root, 0, stderr);
+    fprintf(stderr, "\n");
 
     stem_tokenlist_free(&tokens);
 
