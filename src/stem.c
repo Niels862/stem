@@ -12,7 +12,8 @@ void stem_init() {
 
 static void stem_node_context_init(stem_node_context_t *nctx) {
     stem_pool_init(&nctx->pool, 256);
-    nctx->curr = NULL;
+    nctx->_curr = NULL;
+    nctx->_traversal = NULL;
 }
 
 static void stem_node_context_destruct(stem_node_context_t *nctx) {
@@ -40,9 +41,9 @@ void stem_build(stem_node_t *root, stem_profile_t *profile, FILE *file) {
     stem_node_context_init(&nctx);
     stem_node_visit(root, &nctx, stem_visitor_set_context);
 
-    stem_semantic_analysis(root);
-    stem_dispatch(&ctx, root);
-    stem_render(&ctx, file);
+    stem_semantic_phase(root);
+    stem_emission_phase(&ctx, root);
+    stem_render_phase(&ctx, file);
 
     stem_node_write(root, 0, stderr);
     fprintf(stderr, "\n");

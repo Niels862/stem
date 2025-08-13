@@ -54,3 +54,11 @@ void stem_dispatch(stem_context_t *ctx, stem_node_t *node) {
 
     func(ctx, node);
 }
+
+void stem_emission_phase(stem_context_t *ctx, stem_node_t *root) {
+    stem_node_start_traversal(root, "emission-phase");
+
+    stem_dispatch(ctx, root);
+
+    stem_node_end_traversal(root);
+}

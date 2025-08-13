@@ -54,9 +54,13 @@ typedef struct {
     /* Owns objects that are only valid during the `build` phase: 
        types and symbols */
     stem_pool_t pool;
+ 
+    /* The current symbol table of the current node in the AST _traversal. */
+    stem_symboltable_t *_curr;
 
-    /* The current symbol table of the current node in the AST traversal. */
-    stem_symboltable_t *curr;
+    /* Stores a traversal name set by start_traversal. Soft-locks the context 
+       to a single traversal at a time. */
+    char *_traversal;
 } stem_node_context_t;
 
 struct stem_node_t {
@@ -131,6 +135,10 @@ STEM_NODE_HEADER(STEM_NODE_IDENT, ident)
 
 void stem_node_visit(stem_node_t *node, void *ctx, 
                      void(*func)(stem_node_t *, void *));
+
+void stem_node_start_traversal(stem_node_t *node, char *name);
+
+void stem_node_end_traversal(stem_node_t *node);
 
 stem_symboltable_t *stem_node_get_scope(stem_node_t *node);
 

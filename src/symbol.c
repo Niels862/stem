@@ -77,6 +77,7 @@ char *stem_symbolkind_name(stem_symbolkind_t kind) {
     switch (kind) {
         case STEM_SYM_CLASS:    return "class";
         case STEM_SYM_FUNCTION: return "function";
+        case STEM_SYM_VARIABLE: return "variable";
     }
 
     return "";
@@ -100,6 +101,18 @@ stem_symbol_t *stem_symbol_function(stem_node_function_t *node,
 
     sym->base.kind = STEM_SYM_FUNCTION;
     sym->node = node;
+
+    return &sym->base;
+}
+
+stem_symbol_t *stem_symbol_variable(stem_node_variable_t *node,
+                                    stem_pool_t *pool) {
+    stem_symbol_variable_t *sym =
+            stem_pool_alloc(pool, sizeof(stem_symbol_variable_t));
+
+    sym->base.kind = STEM_SYM_VARIABLE;
+    sym->node = node;
+    sym->type = NULL;
 
     return &sym->base;
 }

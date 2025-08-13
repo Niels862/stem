@@ -65,7 +65,7 @@ static void stem_render_token(stem_context_t *ctx, stem_render_context_t *rctx,
     }
 }
 
-void stem_render(stem_context_t *ctx, FILE *file) {
+void stem_render_phase(stem_context_t *ctx, FILE *file) {
     stem_render_context_t rctx;
     stem_render_context_init(&rctx, file);
 

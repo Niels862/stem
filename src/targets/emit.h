@@ -24,4 +24,6 @@ stem_token_t *stem_dedent(stem_context_t *ctx);
 
 void stem_dispatch(stem_context_t *ctx, stem_node_t *node);
 
+void stem_emission_phase(stem_context_t *ctx, stem_node_t *root);
+
 #endif

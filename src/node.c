@@ -377,22 +377,37 @@ void stem_node_visit(stem_node_t *node, void *ctx,
     }
 }
 
+void stem_node_start_traversal(stem_node_t *node, char *name) {
+    assert(node->ctx->_traversal == NULL);
+
+    node->ctx->_traversal = name;
+}
+
+void stem_node_end_traversal(stem_node_t *node) {
+    assert(node->ctx->_traversal != NULL);
+
+    node->ctx->_traversal = NULL;
+}
+
 stem_symboltable_t *stem_node_get_scope(stem_node_t *node) {
     assert(node != NULL);
     assert(node->ctx != NULL);
-    assert(node->ctx->curr != NULL);
+    assert(node->ctx->_curr != NULL);
+    assert(node->ctx->_traversal != NULL);
 
-    return node->ctx->curr;
+    return node->ctx->_curr;
 }
 
 void stem_node_enter_scope(stem_node_t *node, stem_symboltable_t *table) {
-    assert(node->ctx->curr == table->parent);
+    assert(node->ctx->_curr == table->parent);
+    assert(node->ctx->_traversal != NULL);
 
-    node->ctx->curr = table;
+    node->ctx->_curr = table;
 }
 
 void stem_node_leave_scope(stem_node_t *node, stem_symboltable_t *table) {
-    assert(node->ctx->curr == table);
+    assert(node->ctx->_curr == table);
+    assert(node->ctx->_traversal != NULL);
 
-    node->ctx->curr = table->parent;
+    node->ctx->_curr = table->parent;
 }

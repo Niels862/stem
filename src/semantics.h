@@ -3,6 +3,6 @@
 
 #include "stem/node.h"
 
-void stem_semantic_analysis(stem_node_t *root);
+void stem_semantic_phase(stem_node_t *root);
 
 #endif

@@ -20,14 +20,21 @@ void stem_pool_init(stem_pool_t *pool, size_t blocksize) {
 }
 
 void stem_pool_destruct(stem_pool_t *pool) {
+    size_t used = 0, allocated = 0;
+
     stem_pool_block_t *block = pool->first;
 
     while (block != NULL) {
+        used += block->size;
+        allocated += pool->blocksize;
+
         stem_pool_block_t *next = block->next;
         free(block);
 
         block = next;
     }
+
+    fprintf(stderr, "* pool: %ld used / %ld allocated\n", used, allocated);
 }
 
 void *stem_pool_alloc(stem_pool_t *pool, size_t size) {
