@@ -7,7 +7,7 @@ void stem_c_target_init(stem_target_t *target) {
         [STEM_NODE_MODULE]      = &stem_cc_emit_module,
         [STEM_NODE_CLASS]       = &stem_c_emit_class,
         [STEM_NODE_FUNCTION]    = &stem_cc_emit_function,
-        [STEM_NODE_VARIABLE]    = NULL,
+        [STEM_NODE_VARIABLE]    = &stem_c_emit_variable,
         [STEM_NODE_IF_ELSE]     = &stem_c_like_emit_if_else,
         [STEM_NODE_BOOL_LIT]    = &stem_c_like_emit_bool_lit,
     };
@@ -18,6 +18,20 @@ void stem_c_target_init(stem_target_t *target) {
     }
 }
 
+static void stem_c_type_annotation(stem_context_t *ctx, 
+                                        stem_node_t *vnode) {
+    switch (vnode->desc->kind) {
+        case STEM_NODE_IDENT: {
+            stem_node_ident_t *node = stem_node_cast_ident(vnode);
+            stem_separated(ctx, node->name);
+            break;
+        }
+
+        default:
+            assert(1); // TODO: ERROR
+    }
+}
+
 void stem_c_emit_class(stem_context_t *ctx, stem_node_t *vnode) {
     stem_node_class_t *node = stem_node_cast_class(vnode);
 
@@ -25,5 +39,18 @@ void stem_c_emit_class(stem_context_t *ctx, stem_node_t *vnode) {
     stem_separated(ctx, node->name);
 
     stem_c_like_brace_open(ctx);
+
+    for (size_t i = 0; !STEM_AT_LIST_END(node->attributes[i]); i++) {
+        stem_dispatch(ctx, node->attributes[i]);
+    }
+
     stem_c_like_brace_close(ctx, true);
+}
+
+void stem_c_emit_variable(stem_context_t *ctx, stem_node_t *vnode) {
+    stem_node_variable_t *node = stem_node_cast_variable(vnode);
+
+    stem_c_type_annotation(ctx, node->anno);
+    stem_separated(ctx, node->name);
+    stem_c_like_semicolon(ctx);
 }

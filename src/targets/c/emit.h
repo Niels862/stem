@@ -10,4 +10,6 @@ void stem_c_target_init(stem_target_t *target);
 
 void stem_c_emit_class(stem_context_t *ctx, stem_node_t *vnode);
 
+void stem_c_emit_variable(stem_context_t *ctx, stem_node_t *vnode);
+
 #endif

@@ -32,6 +32,10 @@ void stem_c_like_paren_expr(stem_context_t *ctx, stem_node_t *vnode) {
     stem_set_option(stem_separator(ctx, ")"), post, space, true);
 }
 
+void stem_c_like_semicolon(stem_context_t *ctx) {
+    stem_set_option(stem_separator(ctx, ";"), post, newline, true);
+}
+
 void stem_c_like_emit_bool_lit(stem_context_t *ctx, stem_node_t *vnode) {
     stem_node_bool_lit_t *node = stem_node_cast_bool_lit(vnode);
     if (node->value) {

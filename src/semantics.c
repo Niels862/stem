@@ -63,8 +63,6 @@ static void stem_declare_class(stem_node_t *vnode) {
 }
 
 static stem_type_t *stem_type_from_annotation(stem_node_t *vnode) {
-    fprintf(stderr, "{%s %d}\n", vnode->desc->name, vnode->desc->kind);
-
     switch (vnode->desc->kind) {
         case STEM_NODE_IDENT: {
             stem_node_ident_t *node = stem_node_cast_ident(vnode);

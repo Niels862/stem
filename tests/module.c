@@ -10,7 +10,10 @@ stem_node_t *build_function(char *name) {
 stem_node_t *build_class() {
     return Class(
         "Class",
-        Empty,
+        List(
+            Variable("x", Ident("int")),
+            Variable("y", Ident("int"))
+        ),
         List(
             build_function("method1"),
             build_function("method2")
