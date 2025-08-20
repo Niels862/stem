@@ -1,10 +1,12 @@
 #ifndef STEM_TYPE_H
 #define STEM_TYPE_H
 
+#include "symbol-forward.h"
+#include "pool.h"
 #include <stdio.h>
 
 typedef enum {
-    STEM_TYPE_NAMED,
+    STEM_TYPE_CLASS,
 } stem_typekind_t;
 
 typedef struct {
@@ -13,8 +15,10 @@ typedef struct {
 
 typedef struct {
     stem_type_t base;
-    char *name;
-} stem_type_named_t;
+    stem_symbol_t *sym; /* FIXME: initialize */
+} stem_type_class_t;
+
+stem_type_t *stem_type_class(stem_symbol_t *sym, stem_pool_t *pool);
 
 void stem_type_write(stem_type_t *vtype, FILE *file);
 
@@ -30,6 +34,6 @@ void stem_type_write(stem_type_t *vtype, FILE *file);
         return (STEM_TYPE_TYPE(t) *)type; \
     }
 
-STEM_TYPE_HEADER(STEM_TYPE_NAMED, named)
+STEM_TYPE_HEADER(STEM_TYPE_CLASS, class)
 
 #endif

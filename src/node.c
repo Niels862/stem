@@ -154,6 +154,7 @@ stem_node_t *stem_false() {
 
 stem_node_t *stem_ident(char *name) {
     static stem_node_descriptor_t desc = {
+        .kind = STEM_NODE_IDENT,
         .name = "ident",
         .attrs = {
             { offsetof(stem_node_ident_t, name), STEM_ATTR_STRVIEW },

@@ -62,10 +62,38 @@ static void stem_declare_class(stem_node_t *vnode) {
     stem_symboltable_add(stem_node_get_scope(vnode), node->name, sym);
 }
 
+static stem_type_t *stem_type_from_annotation(stem_node_t *vnode) {
+    fprintf(stderr, "{%s %d}\n", vnode->desc->name, vnode->desc->kind);
+
+    switch (vnode->desc->kind) {
+        case STEM_NODE_IDENT: {
+            stem_node_ident_t *node = stem_node_cast_ident(vnode);
+            stem_symboltable_t *scope = stem_node_get_scope(vnode);
+
+            stem_symbol_t *vsym = stem_symboltable_lookup(scope, node->name);
+            stem_symbol_class_t *sym = stem_sym_cast_class(vsym);
+
+            return sym->type;
+        }
+
+        default:
+            break;
+    }
+
+    fprintf(stderr, "Error: unhandled case: '%s'\n",
+            vnode->desc->name);
+    abort();
+}
+
 static stem_type_t *stem_semantic_module(stem_node_t *vnode) {
     stem_node_module_t *node = stem_node_cast_module(vnode);
 
     stem_node_enter_scope(vnode, &node->syms);
+
+    stem_symboltable_t *scope = stem_node_get_scope(vnode);
+    stem_pool_t *pool = &vnode->ctx->pool;
+
+    stem_symboltable_add(scope, "int", stem_symbol_class(NULL, pool));
 
     for (size_t i = 0; !STEM_AT_LIST_END(node->classes[i]); i++) {
         stem_declare_class(node->classes[i]);
@@ -100,13 +128,21 @@ static stem_type_t *stem_semantic_function(stem_node_t *vnode) {
 
     stem_node_enter_scope(vnode, &node->syms);
 
+    stem_semantic_dispatch_list(node->body);
+
     stem_node_leave_scope(vnode, &node->syms);
 
     return NULL;
 }
 
 static stem_type_t *stem_semantic_variable(stem_node_t *vnode) {
-    (void)vnode;
+    stem_node_variable_t *node = stem_node_cast_variable(vnode);
+
+    stem_symboltable_t *scope = stem_node_get_scope(vnode);
+    stem_symbol_t *vsym = stem_symboltable_lookup(scope, node->name);
+    stem_symbol_variable_t *sym = stem_sym_cast_variable(vsym);
+    
+    sym->type = stem_type_from_annotation(node->anno);
 
     return NULL;
 }
@@ -117,20 +153,20 @@ static stem_type_t *stem_semantic_if_else(stem_node_t *vnode) {
     return NULL;
 }
 
-static stem_type_t *stem_semantic_dispatch(stem_node_t *node) {
-    switch (node->desc->kind) {
-        case STEM_NODE_MODULE:      return stem_semantic_module(node);
-        case STEM_NODE_CLASS:       return stem_semantic_class(node);
-        case STEM_NODE_FUNCTION:    return stem_semantic_function(node);
-        case STEM_NODE_VARIABLE:    return stem_semantic_variable(node);
-        case STEM_NODE_IF_ELSE:     return stem_semantic_if_else(node);
+static stem_type_t *stem_semantic_dispatch(stem_node_t *vnode) {
+    switch (vnode->desc->kind) {
+        case STEM_NODE_MODULE:      return stem_semantic_module(vnode);
+        case STEM_NODE_CLASS:       return stem_semantic_class(vnode);
+        case STEM_NODE_FUNCTION:    return stem_semantic_function(vnode);
+        case STEM_NODE_VARIABLE:    return stem_semantic_variable(vnode);
+        case STEM_NODE_IF_ELSE:     return stem_semantic_if_else(vnode);
 
         default:
             break;
     }
 
     fprintf(stderr, "Error: unhandled case in semantic analysis: '%s'\n",
-            node->desc->name);
+            vnode->desc->name);
     abort();
 }
 

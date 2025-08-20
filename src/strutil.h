@@ -9,6 +9,13 @@ typedef struct {
     char *end;
 } stem_strview_t;
 
+typedef struct {
+    char *buf;
+    size_t cap;
+    size_t str_start;
+    size_t str_end;
+} stem_strbuilder_t;
+
 void stem_strview_init(stem_strview_t *str, char *start, char *end);
 
 void stem_strview_init_in_pool(stem_strview_t *str, 
@@ -17,6 +24,10 @@ void stem_strview_init_in_pool(stem_strview_t *str,
 void stem_strview_write_literal(stem_strview_t *str, FILE *file);
 
 void stem_strview_write(stem_strview_t *str, FILE *file);
+
+void stem_strbuilder_init(stem_strbuilder_t *sb);
+
+void stem_strbuilder_destruct(stem_strbuilder_t *sb);
 
 void stem_str_write_literal(char *str, int len, FILE *file);
 

@@ -37,10 +37,7 @@ void stem_symboltable_write_oneline(stem_symboltable_t *table, FILE *file) {
             first = false;
         }
         
-        stem_symbol_t *sym = iter.value;
-
-        stem_str_write_literal(iter.key, strlen(iter.key), file);
-        fprintf(file, ": <%s>", stem_symbolkind_name(sym->kind));
+        stem_symbol_write(iter.value, file);
 
         stem_strmap_iter_next(&iter);
     }
@@ -57,6 +54,8 @@ void stem_symboltable_add(stem_symboltable_t *table,
                 "Fatal error: `%s` already defined in this scope\n", name);
         abort();
     }
+
+    sym->name = name;
 }
 
 stem_symbol_t *stem_symboltable_lookup(stem_symboltable_t *table, char *name) {
@@ -83,13 +82,19 @@ char *stem_symbolkind_name(stem_symbolkind_t kind) {
     return "";
 }
 
+static void stem_symbol_base_init(stem_symbol_t *sym, stem_symbolkind_t kind) {
+    sym->kind = kind;
+    sym->name = NULL;
+}
+
 stem_symbol_t *stem_symbol_class(stem_node_class_t *node,
                                  stem_pool_t *pool) {
     stem_symbol_class_t *sym = 
             stem_pool_alloc(pool, sizeof(stem_symbol_class_t));
 
-    sym->base.kind = STEM_SYM_CLASS;
+    stem_symbol_base_init(&sym->base, STEM_SYM_CLASS);
     sym->node = node;
+    sym->type = stem_type_class(&sym->base, pool);
 
     return &sym->base;
 }
@@ -99,7 +104,7 @@ stem_symbol_t *stem_symbol_function(stem_node_function_t *node,
     stem_symbol_function_t *sym = 
             stem_pool_alloc(pool, sizeof(stem_symbol_function_t));
 
-    sym->base.kind = STEM_SYM_FUNCTION;
+    stem_symbol_base_init(&sym->base, STEM_SYM_FUNCTION);
     sym->node = node;
 
     return &sym->base;
@@ -110,9 +115,33 @@ stem_symbol_t *stem_symbol_variable(stem_node_variable_t *node,
     stem_symbol_variable_t *sym =
             stem_pool_alloc(pool, sizeof(stem_symbol_variable_t));
 
-    sym->base.kind = STEM_SYM_VARIABLE;
+    stem_symbol_base_init(&sym->base, STEM_SYM_VARIABLE);
     sym->node = node;
     sym->type = NULL;
 
     return &sym->base;
 }
+
+void stem_symbol_write(stem_symbol_t *vsym, FILE *file) {
+    stem_str_write_literal(vsym->name, strlen(vsym->name), file);
+    fprintf(file, ": <%s>", stem_symbolkind_name(vsym->kind));
+
+    switch (vsym->kind) {
+        case STEM_SYM_VARIABLE: {
+            stem_symbol_variable_t *sym = stem_sym_cast_variable(vsym);
+
+            fprintf(file, " (= ");
+            stem_type_write(sym->type, file);
+            fprintf(file, ")");
+
+            break;
+        }
+
+        default:
+            break;
+    }
+}
+
+STEM_SYM_SOURCE(STEM_SYM_CLASS, class)
+STEM_SYM_SOURCE(STEM_SYM_FUNCTION, function)
+STEM_SYM_SOURCE(STEM_SYM_VARIABLE, variable)

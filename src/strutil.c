@@ -1,4 +1,6 @@
 #include "strutil.h"
+#include "util.h"
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -28,6 +30,16 @@ void stem_strview_write_literal(stem_strview_t *str, FILE *file) {
 
 void stem_strview_write(stem_strview_t *str, FILE *file) {
     fprintf(file, "%.*s", (int)(str->end - str->start), str->start);
+}
+
+void stem_strbuilder_init(stem_strbuilder_t *sb) {
+    sb->cap = 128;
+    sb->buf = stem_xmalloc(sb->cap);
+    sb->str_start = sb->str_end = sb->cap / 2;
+}
+
+void stem_strbuilder_destruct(stem_strbuilder_t *sb) {
+    free(sb->buf);
 }
 
 void stem_str_write_literal(char *str, int len, FILE *file) {
