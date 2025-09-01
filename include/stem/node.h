@@ -9,7 +9,8 @@ typedef struct stem_node_t stem_node_t;
 
 typedef struct stem_node_context_t stem_node_context_t;
 
-stem_node_t *stem_module(stem_node_t **classes, stem_node_t **functions);
+stem_node_t *stem_module(char *name, stem_node_t **classes, 
+                         stem_node_t **functions);
 
 stem_node_t *stem_class(char *name, stem_node_t **attributes, 
                         stem_node_t **methods);
@@ -44,5 +45,12 @@ void stem_node_free(stem_node_t *node);
 extern stem_node_t *stem_list_end;
 
 #define STEM_AT_LIST_END(e) ((e) == stem_list_end)
+
+stem_node_context_t *stem_node_context_new(stem_node_t *root);
+
+void stem_node_context_free(stem_node_context_t *nctx,
+                            stem_node_t *root);
+
+void stem_finalize_tree(stem_node_t *root);
 
 #endif

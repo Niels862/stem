@@ -10,7 +10,7 @@ typedef void(*stem_emit_dispatch_function_t)(stem_build_context_t *, stem_node_t
 
 typedef struct {
     char *name;
-    stem_emit_dispatch_function_t emit_dispatch[STEM_N_NODES];
+    stem_emit_dispatch_function_t *emit_dispatch;
 } stem_target_t;
 
 void stem_target_init(stem_target_t *target, stem_target_id_t id);

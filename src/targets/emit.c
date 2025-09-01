@@ -6,8 +6,8 @@ void stem_set_format_option(stem_format_option_t *opt, bool emit, bool force) {
     opt->force = force;
 }
 
-stem_token_t *stem_separated(stem_build_context_t *ctx, char *text) {
-    stem_token_t *token = stem_token_emit(ctx->tokens, STEM_TOKEN_TEXT, text);
+stem_token_t *stem_separated(stem_build_context_t *bctx, char *text) {
+    stem_token_t *token = stem_token_emit(bctx->tokens, STEM_TOKEN_TEXT, text);
 
     stem_set_format_option(&token->pre.space, true, false);
     stem_set_format_option(&token->post.space, true, false);
@@ -15,8 +15,8 @@ stem_token_t *stem_separated(stem_build_context_t *ctx, char *text) {
     return token;
 }
 
-stem_token_t *stem_separator(stem_build_context_t *ctx, char *text) {
-    stem_token_t *token = stem_token_emit(ctx->tokens, STEM_TOKEN_TEXT, text);
+stem_token_t *stem_separator(stem_build_context_t *bctx, char *text) {
+    stem_token_t *token = stem_token_emit(bctx->tokens, STEM_TOKEN_TEXT, text);
 
     stem_set_format_option(&token->pre.space, false, true);
     stem_set_format_option(&token->post.space, false, true);
@@ -24,8 +24,8 @@ stem_token_t *stem_separator(stem_build_context_t *ctx, char *text) {
     return token;
 }
 
-stem_token_t *stem_indent(stem_build_context_t *ctx) {
-    stem_token_t *token = stem_token_emit(ctx->tokens, STEM_TOKEN_INDENT, NULL);
+stem_token_t *stem_indent(stem_build_context_t *bctx) {
+    stem_token_t *token = stem_token_emit(bctx->tokens, STEM_TOKEN_INDENT, NULL);
 
     stem_set_format_option(&token->pre.newline, true, true);
     stem_set_format_option(&token->post.newline, false, true);
@@ -33,8 +33,8 @@ stem_token_t *stem_indent(stem_build_context_t *ctx) {
     return token;
 }
 
-stem_token_t *stem_dedent(stem_build_context_t *ctx) {
-    stem_token_t *token = stem_token_emit(ctx->tokens, STEM_TOKEN_DEDENT, NULL);
+stem_token_t *stem_dedent(stem_build_context_t *bctx) {
+    stem_token_t *token = stem_token_emit(bctx->tokens, STEM_TOKEN_DEDENT, NULL);
 
     stem_set_format_option(&token->pre.newline, true, true);
     stem_set_format_option(&token->post.newline, false, true);
@@ -42,23 +42,23 @@ stem_token_t *stem_dedent(stem_build_context_t *ctx) {
     return token;
 }
 
-void stem_dispatch(stem_build_context_t *ctx, stem_node_t *node) {
+void stem_dispatch(stem_build_context_t *bctx, stem_node_t *node) {
     stem_node_descriptor_t *desc = node->desc;
 
-    stem_emit_dispatch_function_t func = ctx->target->emit_dispatch[desc->kind];
+    stem_emit_dispatch_function_t func = bctx->target->emit_dispatch[desc->kind];
     if (func == NULL) {
         fprintf(stderr, "Fatal error: target '%s' does not implement '%s'\n", 
-                ctx->target->name, desc->name);
+                bctx->target->name, desc->name);
         abort();
     }
 
-    func(ctx, node);
+    func(bctx, node);
 }
 
-void stem_emission_phase(stem_build_context_t *ctx, stem_node_t *root) {
+void stem_emission_phase(stem_build_context_t *bctx, stem_node_t *root) {
     stem_node_start_traversal(root, "emission-phase");
 
-    stem_dispatch(ctx, root);
+    stem_dispatch(bctx, root);
 
     stem_node_end_traversal(root);
 }

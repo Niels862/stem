@@ -1,6 +1,5 @@
 #include "stem/stem.h"
 #include "targets/emit.h"
-#include "semantics.h"
 #include "context.h"
 #include "token.h"
 #include "target.h"
@@ -8,35 +7,23 @@
 #include "util.h"
 #include <stdlib.h>
 
+static void debug_info_pre(stem_node_t *root, stem_target_t *target) {
+    stem_node_module_t *node = stem_node_cast_module(root);
+
+    fprintf(stderr, "Writing Module '%s' as target '%s'...\n\n", 
+            node->name, target->name);
+}
+
+static void debug_info_post() {
+    fprintf(stderr, "\n");
+}
+
 void stem_init() {
     
 }
 
-static void stem_visitor_set_context(stem_node_t *node, void *nctx) {
-    node->ctx = nctx;
-}
-
-stem_node_context_t *stem_node_context_new(stem_node_t *root) {
-    stem_node_context_t *nctx = stem_xmalloc(sizeof(stem_node_context_t));
-    
-    stem_pool_init(&nctx->pool, 256);
-    nctx->_curr = NULL;
-    nctx->_traversal = NULL;
-
-    stem_node_visit(root, nctx, stem_visitor_set_context);
-
-    return nctx;
-}
-
-void stem_node_context_free(stem_node_context_t *nctx,
-                            stem_node_t *root) {
-    stem_node_visit(root, NULL, stem_visitor_set_context);
-
-    stem_pool_destruct(&nctx->pool);
-    free(nctx);
-}
-
-void stem_build(stem_node_t *root, stem_profile_t *profile, FILE *file, stem_target_id_t tid) {
+void stem_build(stem_node_t *root, stem_profile_t *profile, 
+                stem_target_id_t tid, FILE *file) {
     stem_target_t target;
     stem_target_init(&target, tid);
 
@@ -49,16 +36,12 @@ void stem_build(stem_node_t *root, stem_profile_t *profile, FILE *file, stem_tar
         .profile = profile,
     };
 
-    stem_node_context_t *nctx = stem_node_context_new(root);
+    debug_info_pre(root, &target);
 
-    stem_semantic_phase(root);
     stem_emission_phase(&bctx, root);
     stem_render_phase(&bctx, file);
 
-    stem_node_write(root, 0, stderr);
-    fprintf(stderr, "\n");
+    debug_info_post();
 
     stem_tokenlist_free(&tokens);
-
-    stem_node_context_free(nctx, root);
 }

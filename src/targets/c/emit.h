@@ -6,10 +6,12 @@
 #include "target.h"
 #include <stdio.h>
 
-void stem_c_target_init(stem_target_t *target);
+void stem_c_source_target_init(stem_target_t *target);
 
-void stem_c_emit_class(stem_build_context_t *ctx, stem_node_t *vnode);
+void stem_c_header_target_init(stem_target_t *target);
 
-void stem_c_emit_variable(stem_build_context_t *ctx, stem_node_t *vnode);
+void stem_c_emit_class(stem_build_context_t *bctx, stem_node_t *vnode);
+
+void stem_c_emit_variable(stem_build_context_t *bctx, stem_node_t *vnode);
 
 #endif

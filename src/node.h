@@ -70,6 +70,7 @@ struct stem_node_t {
 
 struct stem_node_module_t {
     stem_node_t base;
+    char *name;
     stem_node_t **classes;
     stem_node_t **functions;
     stem_symboltable_t syms;

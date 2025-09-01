@@ -1,4 +1,5 @@
 #include "node.h"
+#include "semantics.h"
 #include "renderer.h"
 #include "util.h"
 #include <stdlib.h>
@@ -16,11 +17,13 @@ static void stem_node_base_init(stem_node_t *base,
     base->ctx = NULL;
 }
 
-stem_node_t *stem_module(stem_node_t **classes, stem_node_t **functions) {
+stem_node_t *stem_module(char *name, stem_node_t **classes, 
+                         stem_node_t **functions) {
     static stem_node_descriptor_t desc = {
         .kind = STEM_NODE_MODULE,
         .name = "module",
         .attrs = {
+            { offsetof(stem_node_module_t, name), STEM_ATTR_STRVIEW },
             { offsetof(stem_node_module_t, classes), STEM_ATTR_LIST },
             { offsetof(stem_node_module_t, functions), STEM_ATTR_LIST },
             { offsetof(stem_node_module_t, syms), STEM_ATTR_SYMTABLE },
@@ -30,6 +33,7 @@ stem_node_t *stem_module(stem_node_t **classes, stem_node_t **functions) {
     stem_node_module_t *node = stem_xmalloc(sizeof(stem_node_module_t));
 
     stem_node_base_init(&node->base, &desc);
+    node->name = name;
     node->classes = classes;
     node->functions = functions;
     stem_symboltable_init(&node->syms);
@@ -331,6 +335,34 @@ void stem_node_free(stem_node_t *node) {
     }
 
     free(node);
+}
+
+static void stem_visitor_set_context(stem_node_t *node, void *nctx) {
+    node->ctx = nctx;
+}
+
+stem_node_context_t *stem_node_context_new(stem_node_t *root) {
+    stem_node_context_t *nctx = stem_xmalloc(sizeof(stem_node_context_t));
+    
+    stem_pool_init(&nctx->pool, 256);
+    nctx->_curr = NULL;
+    nctx->_traversal = NULL;
+
+    stem_node_visit(root, nctx, stem_visitor_set_context);
+
+    return nctx;
+}
+
+void stem_node_context_free(stem_node_context_t *nctx,
+                            stem_node_t *root) {
+    stem_node_visit(root, NULL, stem_visitor_set_context);
+
+    stem_pool_destruct(&nctx->pool);
+    free(nctx);
+}
+
+void stem_finalize_tree(stem_node_t *root) {
+    stem_semantic_phase(root);
 }
 
 STEM_NODE_SOURCE(STEM_NODE_MODULE, module)

@@ -6,12 +6,13 @@ void stem_c_like_brace_open(stem_build_context_t *bctx) {
     stem_indent(bctx);
 }
 
-void stem_c_like_brace_close(stem_build_context_t *bctx, bool newline) {
+void stem_c_like_brace_close(stem_build_context_t *bctx, 
+                             bool newline, bool space) {
     stem_token_t *dedent = stem_dedent(bctx);
     stem_set_option(dedent, pre, emptyline, false);
 
     stem_token_t *close = stem_separator(bctx, "}");
-    stem_set_option(close, post, space, true);
+    stem_set_option(close, post, space, space);
     stem_set_option(close, post, newline, newline);
     stem_set_option_soft(close, post, emptyline, newline);
 }
@@ -23,7 +24,7 @@ void stem_c_like_block(stem_build_context_t *bctx, stem_node_t **block, bool new
         stem_dispatch(bctx, block[i]);
     }
 
-    stem_c_like_brace_close(bctx, newline);
+    stem_c_like_brace_close(bctx, newline, true);
 }
 
 void stem_c_like_paren_expr(stem_build_context_t *bctx, stem_node_t *vnode) {    
@@ -33,7 +34,9 @@ void stem_c_like_paren_expr(stem_build_context_t *bctx, stem_node_t *vnode) {
 }
 
 void stem_c_like_semicolon(stem_build_context_t *bctx) {
-    stem_set_option(stem_separator(bctx, ";"), post, newline, true);
+    stem_token_t *token = stem_separator(bctx, ";");
+    stem_set_option(token, pre, space, false);
+    stem_set_option(token, post, newline, true);
 }
 
 void stem_c_like_emit_bool_lit(stem_build_context_t *bctx, stem_node_t *vnode) {
