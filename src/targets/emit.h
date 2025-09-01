@@ -13,17 +13,17 @@
 void stem_set_format_option(stem_format_option_t *opt, bool emit, bool force);
 
 /* Token with soft space on both sides. */
-stem_token_t *stem_separated(stem_context_t *ctx, char *text);
+stem_token_t *stem_separated(stem_build_context_t *bctx, char *text);
 
 /* Token with hard no-space on both sides */
-stem_token_t *stem_separator(stem_context_t *ctx, char *text);
+stem_token_t *stem_separator(stem_build_context_t *bctx, char *text);
 
-stem_token_t *stem_indent(stem_context_t *ctx);
+stem_token_t *stem_indent(stem_build_context_t *bctx);
 
-stem_token_t *stem_dedent(stem_context_t *ctx);
+stem_token_t *stem_dedent(stem_build_context_t *bctx);
 
-void stem_dispatch(stem_context_t *ctx, stem_node_t *node);
+void stem_dispatch(stem_build_context_t *bctx, stem_node_t *node);
 
-void stem_emission_phase(stem_context_t *ctx, stem_node_t *root);
+void stem_emission_phase(stem_build_context_t *bctx, stem_node_t *root);
 
 #endif

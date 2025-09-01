@@ -8,6 +8,6 @@
 
 void stem_init();
 
-void stem_build(stem_node_t *root, stem_profile_t *profile, FILE *file);
+void stem_build(stem_node_t *root, stem_profile_t *profile, FILE *file, stem_target_id_t tid);
 
 #endif

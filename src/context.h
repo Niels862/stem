@@ -5,7 +5,7 @@
 #include "token.h"
 #include "target.h"
 
-struct stem_context_t {
+struct stem_build_context_t {
     stem_tokenlist_t *tokens;
     stem_target_t *target;
     stem_profile_t *profile;

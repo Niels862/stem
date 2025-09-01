@@ -4,18 +4,18 @@
 #include "context.h"
 #include "targets/emit.h"
 
-void stem_c_like_brace_open(stem_context_t *ctx);
+void stem_c_like_brace_open(stem_build_context_t *ctx);
 
-void stem_c_like_brace_close(stem_context_t *ctx, bool newline);
+void stem_c_like_brace_close(stem_build_context_t *ctx, bool newline);
 
-void stem_c_like_block(stem_context_t *ctx, stem_node_t **block, bool newline);
+void stem_c_like_block(stem_build_context_t *ctx, stem_node_t **block, bool newline);
 
-void stem_c_like_paren_expr(stem_context_t *ctx, stem_node_t *vnode);
+void stem_c_like_paren_expr(stem_build_context_t *ctx, stem_node_t *vnode);
 
-void stem_c_like_semicolon(stem_context_t *ctx);
+void stem_c_like_semicolon(stem_build_context_t *ctx);
 
-void stem_c_like_emit_bool_lit(stem_context_t *ctx, stem_node_t *vnode);
+void stem_c_like_emit_bool_lit(stem_build_context_t *ctx, stem_node_t *vnode);
 
-void stem_c_like_emit_if_else(stem_context_t *ctx, stem_node_t *vnode);
+void stem_c_like_emit_if_else(stem_build_context_t *ctx, stem_node_t *vnode);
 
 #endif

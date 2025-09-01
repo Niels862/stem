@@ -18,7 +18,7 @@ void stem_c_target_init(stem_target_t *target) {
     }
 }
 
-static void stem_c_type_annotation(stem_context_t *ctx, 
+static void stem_c_type_annotation(stem_build_context_t *ctx, 
                                         stem_node_t *vnode) {
     switch (vnode->desc->kind) {
         case STEM_NODE_IDENT: {
@@ -32,7 +32,7 @@ static void stem_c_type_annotation(stem_context_t *ctx,
     }
 }
 
-void stem_c_emit_class(stem_context_t *ctx, stem_node_t *vnode) {
+void stem_c_emit_class(stem_build_context_t *ctx, stem_node_t *vnode) {
     stem_node_class_t *node = stem_node_cast_class(vnode);
 
     stem_set_option(stem_separated(ctx, "struct"), pre, newline, true);
@@ -47,7 +47,7 @@ void stem_c_emit_class(stem_context_t *ctx, stem_node_t *vnode) {
     stem_c_like_brace_close(ctx, true);
 }
 
-void stem_c_emit_variable(stem_context_t *ctx, stem_node_t *vnode) {
+void stem_c_emit_variable(stem_build_context_t *ctx, stem_node_t *vnode) {
     stem_node_variable_t *node = stem_node_cast_variable(vnode);
 
     stem_c_type_annotation(ctx, node->anno);

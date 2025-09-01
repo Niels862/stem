@@ -7,6 +7,8 @@
 
 typedef struct stem_node_t stem_node_t;
 
+typedef struct stem_node_context_t stem_node_context_t;
+
 stem_node_t *stem_module(stem_node_t **classes, stem_node_t **functions);
 
 stem_node_t *stem_class(char *name, stem_node_t **attributes, 

@@ -50,7 +50,7 @@ typedef struct {
     stem_node_attribute_t attrs[STEM_NODE_MAX_ATTRS];
 } stem_node_descriptor_t;
 
-typedef struct {
+struct stem_node_context_t {
     /* Owns objects that are only valid during the `build` phase: 
        types and symbols */
     stem_pool_t pool;
@@ -61,7 +61,7 @@ typedef struct {
     /* Stores a traversal name set by start_traversal. Soft-locks the context 
        to a single traversal at a time. */
     char *_traversal;
-} stem_node_context_t;
+};
 
 struct stem_node_t {
     stem_node_descriptor_t *desc;

@@ -9,7 +9,6 @@ typedef struct {
 } stem_indent_profile_t;
 
 typedef struct {
-    stem_target_id_t target;
     stem_indent_profile_t indent;
 } stem_profile_t;
 

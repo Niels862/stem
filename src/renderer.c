@@ -24,7 +24,8 @@ static bool stem_use_format_option(stem_format_option_t post,
     return post.emit || pre.emit;
 }
 
-static void stem_render_token(stem_context_t *ctx, stem_render_context_t *rctx, 
+static void stem_render_token(stem_build_context_t *bctx, 
+                              stem_render_context_t *rctx, 
                               stem_token_t *token, stem_token_t *next) {
     bool emptyline = false, newline = false, space = false;
 
@@ -46,11 +47,11 @@ static void stem_render_token(stem_context_t *ctx, stem_render_context_t *rctx,
             break;
 
         case STEM_TOKEN_INDENT:
-            rctx->indent += ctx->profile->indent.n;
+            rctx->indent += bctx->profile->indent.n;
             break;
 
         case STEM_TOKEN_DEDENT:
-            rctx->indent -= ctx->profile->indent.n;
+            rctx->indent -= bctx->profile->indent.n;
             break;
     }
 
@@ -65,12 +66,12 @@ static void stem_render_token(stem_context_t *ctx, stem_render_context_t *rctx,
     }
 }
 
-void stem_render_phase(stem_context_t *ctx, FILE *file) {
+void stem_render_phase(stem_build_context_t *bctx, FILE *file) {
     stem_render_context_t rctx;
     stem_render_context_init(&rctx, file);
 
     stem_token_iter_t iter;
-    stem_token_iter_init(&iter, ctx->tokens);
+    stem_token_iter_init(&iter, bctx->tokens);
 
     stem_token_t *token = stem_token_empty();
     stem_token_t *next  = iter.token;
@@ -80,6 +81,6 @@ void stem_render_phase(stem_context_t *ctx, FILE *file) {
         token = next;
         next  = iter.token;
 
-        stem_render_token(ctx, &rctx, token, next);
+        stem_render_token(bctx, &rctx, token, next);
     } while (token != next);
 }

@@ -32,7 +32,7 @@ int main() {
     stem_c_profile_t profile;
     stem_c_profile_init(&profile);
 
-    stem_build(root, (stem_profile_t *)&profile, stdout);
+    stem_build(root, (stem_profile_t *)&profile, stdout, STEM_TARGET_C);
 
     stem_node_free(root);
 

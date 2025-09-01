@@ -4,6 +4,6 @@
 #include "context.h"
 #include <stdio.h>
 
-void stem_render_phase(stem_context_t *ctx, FILE *file);
+void stem_render_phase(stem_build_context_t *bctx, FILE *file);
 
 #endif

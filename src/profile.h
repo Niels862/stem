@@ -3,6 +3,6 @@
 
 #include "stem/profile.h"
 
-void stem_profile_init(stem_profile_t *profile, stem_target_id_t target);
+void stem_profile_init(stem_profile_t *profile);
 
 #endif

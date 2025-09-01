@@ -4,9 +4,9 @@
 #include "stem/target.h"
 #include "node.h"
 
-typedef struct stem_context_t stem_context_t;
+typedef struct stem_build_context_t stem_build_context_t;
 
-typedef void(*stem_emit_dispatch_function_t)(stem_context_t *, stem_node_t *);
+typedef void(*stem_emit_dispatch_function_t)(stem_build_context_t *, stem_node_t *);
 
 typedef struct {
     char *name;
