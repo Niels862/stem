@@ -55,10 +55,12 @@ void stem_dispatch(stem_build_context_t *bctx, stem_node_t *node) {
     func(bctx, node);
 }
 
+void stem_dispatch_list(stem_build_context_t *bctx, stem_node_t **list) {
+    for (size_t i = 0; !STEM_AT_LIST_END(list[i]); i++) {
+        stem_dispatch(bctx, list[i]);
+    }
+}
+
 void stem_emission_phase(stem_build_context_t *bctx, stem_node_t *root) {
-    stem_node_start_traversal(root, "emission-phase");
-
     stem_dispatch(bctx, root);
-
-    stem_node_end_traversal(root);
 }

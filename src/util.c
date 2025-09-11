@@ -13,6 +13,16 @@ void *stem_xmalloc(size_t size) {
     return p;
 }
 
+void *stem_xrealloc(void *p, size_t size) {
+    void *pn = realloc(p, size);
+    if (pn == NULL) {
+        perror("realloc");
+        abort();
+    }
+
+    return pn;
+}
+
 #define STEM_WRITE_CHAR_BUFFER_SIZE 256
 
 void stem_write_n_chars(char c, int n, FILE *file) {

@@ -46,11 +46,4 @@ extern stem_node_t *stem_list_end;
 
 #define STEM_AT_LIST_END(e) ((e) == stem_list_end)
 
-stem_node_context_t *stem_node_context_new(stem_node_t *root);
-
-void stem_node_context_free(stem_node_context_t *nctx,
-                            stem_node_t *root);
-
-void stem_finalize_tree(stem_node_t *root);
-
 #endif

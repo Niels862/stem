@@ -32,14 +32,35 @@ void stem_strview_write(stem_strview_t *str, FILE *file) {
     fprintf(file, "%.*s", (int)(str->end - str->start), str->start);
 }
 
-void stem_strbuilder_init(stem_strbuilder_t *sb) {
-    sb->cap = 128;
+static void stem_strbuilder_realloc(stem_strbuilder_t *sb, size_t len) {
+    while (sb->cap < len) {
+        sb->cap *= 2;
+    }
+    sb->buf = stem_xrealloc(sb->buf, sb->cap);
+}
+
+void stem_strbuilder_init(stem_strbuilder_t *sb, size_t size) {
+    sb->cap = size;
     sb->buf = stem_xmalloc(sb->cap);
-    sb->str_start = sb->str_end = sb->cap / 2;
+    sb->len = 0;
 }
 
 void stem_strbuilder_destruct(stem_strbuilder_t *sb) {
     free(sb->buf);
+}
+
+void stem_strbuilder_clear(stem_strbuilder_t *sb) {
+    sb->len = 0;
+}
+
+void stem_strbuilder_append(stem_strbuilder_t *sb, char *s) {
+    int len = strlen(s);
+    if (sb->len + len > sb->cap) {
+        stem_strbuilder_realloc(sb, len);
+    }
+    
+    memcpy(sb->buf + sb->len, s, len);
+    sb->len += len;
 }
 
 void stem_str_write_literal(char *str, int len, FILE *file) {

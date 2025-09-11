@@ -1,5 +1,4 @@
 #include "node.h"
-#include "semantics.h"
 #include "renderer.h"
 #include "util.h"
 #include <stdlib.h>
@@ -14,7 +13,6 @@ stem_node_t *stem_list_end = &stem_node_sentinel;
 static void stem_node_base_init(stem_node_t *base, 
                                 stem_node_descriptor_t *desc) {
     base->desc = desc;
-    base->ctx = NULL;
 }
 
 stem_node_t *stem_module(char *name, stem_node_t **classes, 
@@ -26,7 +24,6 @@ stem_node_t *stem_module(char *name, stem_node_t **classes,
             { offsetof(stem_node_module_t, name), STEM_ATTR_STRVIEW },
             { offsetof(stem_node_module_t, classes), STEM_ATTR_LIST },
             { offsetof(stem_node_module_t, functions), STEM_ATTR_LIST },
-            { offsetof(stem_node_module_t, syms), STEM_ATTR_SYMTABLE },
         }
     };
 
@@ -36,7 +33,6 @@ stem_node_t *stem_module(char *name, stem_node_t **classes,
     node->name = name;
     node->classes = classes;
     node->functions = functions;
-    stem_symboltable_init(&node->syms);
 
     return &node->base;
 }
@@ -50,7 +46,6 @@ stem_node_t *stem_class(char *name, stem_node_t **attributes,
             { offsetof(stem_node_class_t, name), STEM_ATTR_STRVIEW },
             { offsetof(stem_node_class_t, methods), STEM_ATTR_LIST },
             { offsetof(stem_node_class_t, attributes), STEM_ATTR_LIST },
-            { offsetof(stem_node_class_t, syms), STEM_ATTR_SYMTABLE },
         }
     };
 
@@ -60,7 +55,6 @@ stem_node_t *stem_class(char *name, stem_node_t **attributes,
     node->name = name;
     node->attributes = attributes;
     node->methods = methods;
-    stem_symboltable_init(&node->syms);
 
     return &node->base;
 }
@@ -72,7 +66,6 @@ stem_node_t *stem_function(char *name, stem_node_t **body) {
         .attrs = {
             { offsetof(stem_node_function_t, name), STEM_ATTR_STRVIEW },
             { offsetof(stem_node_function_t, body), STEM_ATTR_LIST },
-            { offsetof(stem_node_function_t, syms), STEM_ATTR_SYMTABLE },
         }
     };
 
@@ -81,7 +74,6 @@ stem_node_t *stem_function(char *name, stem_node_t **body) {
     stem_node_base_init(&node->base, &desc);
     node->name = name;
     node->body = body;
-    stem_symboltable_init(&node->syms);
 
     return &node->base;
 }
@@ -269,11 +261,6 @@ void stem_node_write(stem_node_t *node, size_t indent, FILE *file) {
                 stem_str_write_literal(*p, strlen(*p), file);
                 break;
 
-            case STEM_ATTR_SYMTABLE:
-                stem_write_n_chars(' ', indent + 1, file);
-                stem_symboltable_write_oneline((stem_symboltable_t *)p, file);
-                break;
-
             case STEM_ATTR_BOOL:
                 stem_write_n_chars(' ', indent + 1, file);
                 fprintf(file, "%s", *(bool *)p ? "true" : "false");
@@ -326,43 +313,12 @@ void stem_node_free(stem_node_t *node) {
                 stem_node_list_free((stem_node_t **)*p);
                 break;
 
-            case STEM_ATTR_SYMTABLE:
-                stem_symboltable_destruct((stem_symboltable_t *)p);
-
             default:
                 break;
         }
     }
 
     free(node);
-}
-
-static void stem_visitor_set_context(stem_node_t *node, void *nctx) {
-    node->ctx = nctx;
-}
-
-stem_node_context_t *stem_node_context_new(stem_node_t *root) {
-    stem_node_context_t *nctx = stem_xmalloc(sizeof(stem_node_context_t));
-    
-    stem_pool_init(&nctx->pool, 256);
-    nctx->_curr = NULL;
-    nctx->_traversal = NULL;
-
-    stem_node_visit(root, nctx, stem_visitor_set_context);
-
-    return nctx;
-}
-
-void stem_node_context_free(stem_node_context_t *nctx,
-                            stem_node_t *root) {
-    stem_node_visit(root, NULL, stem_visitor_set_context);
-
-    stem_pool_destruct(&nctx->pool);
-    free(nctx);
-}
-
-void stem_finalize_tree(stem_node_t *root) {
-    stem_semantic_phase(root);
 }
 
 STEM_NODE_SOURCE(STEM_NODE_MODULE, module)
@@ -408,39 +364,4 @@ void stem_node_visit(stem_node_t *node, void *ctx,
                 break;
         }
     }
-}
-
-void stem_node_start_traversal(stem_node_t *node, char *name) {
-    assert(node->ctx->_traversal == NULL);
-
-    node->ctx->_traversal = name;
-}
-
-void stem_node_end_traversal(stem_node_t *node) {
-    assert(node->ctx->_traversal != NULL);
-
-    node->ctx->_traversal = NULL;
-}
-
-stem_symboltable_t *stem_node_get_scope(stem_node_t *node) {
-    assert(node != NULL);
-    assert(node->ctx != NULL);
-    assert(node->ctx->_curr != NULL);
-    assert(node->ctx->_traversal != NULL);
-
-    return node->ctx->_curr;
-}
-
-void stem_node_enter_scope(stem_node_t *node, stem_symboltable_t *table) {
-    assert(node->ctx->_curr == table->parent);
-    assert(node->ctx->_traversal != NULL);
-
-    node->ctx->_curr = table;
-}
-
-void stem_node_leave_scope(stem_node_t *node, stem_symboltable_t *table) {
-    assert(node->ctx->_curr == table);
-    assert(node->ctx->_traversal != NULL);
-
-    node->ctx->_curr = table->parent;
 }

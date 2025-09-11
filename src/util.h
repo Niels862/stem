@@ -6,6 +6,8 @@
 
 void *stem_xmalloc(size_t size);
 
+void *stem_xrealloc(void *p, size_t size);
+
 void stem_write_n_chars(char c, int n, FILE *file);
 
 #endif
