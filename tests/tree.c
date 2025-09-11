@@ -6,8 +6,8 @@ stem_node_t *build_tree_class() {
     return Class(
         "Node",
         List(
-            Variable("left", Ident("Node")),
-            Variable("right", Ident("Node"))
+            Variable("left", ClassType("Node", STEM_STORE_REFERENCE)),
+            Variable("right", ClassType("Node", STEM_STORE_REFERENCE))
         ),
         Empty
     );

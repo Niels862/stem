@@ -22,6 +22,8 @@ typedef enum {
 
     STEM_NODE_IDENT,
 
+    STEM_NODE_CLASSTYPE,
+
     STEM_N_NODES,
 } stem_nodekind_t;
 
@@ -95,6 +97,12 @@ struct stem_node_ident_t {
     char *name;
 };
 
+struct stem_node_classtype_t {
+    stem_node_t base;
+    char *name;
+    stem_storagetype_t store;
+};
+
 #define STEM_NODE_TYPE(t) stem_node_##t##_t
 
 #define STEM_NODE_HEADER(e, t) \
@@ -114,6 +122,7 @@ STEM_NODE_HEADER(STEM_NODE_VARIABLE, variable)
 STEM_NODE_HEADER(STEM_NODE_IF_ELSE, if_else)
 STEM_NODE_HEADER(STEM_NODE_BOOL_LIT, bool_lit)
 STEM_NODE_HEADER(STEM_NODE_IDENT, ident)
+STEM_NODE_HEADER(STEM_NODE_CLASSTYPE, classtype)
 
 void stem_node_visit(stem_node_t *node, void *ctx, 
                      void(*func)(stem_node_t *, void *));

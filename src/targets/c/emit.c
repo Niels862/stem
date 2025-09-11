@@ -13,6 +13,7 @@ void stem_c_source_target_init(stem_target_t *target) {
         [STEM_NODE_VARIABLE]    = &stem_c_emit_variable,
         [STEM_NODE_IF_ELSE]     = &stem_c_like_emit_if_else,
         [STEM_NODE_BOOL_LIT]    = &stem_c_like_emit_bool_lit,
+        [STEM_NODE_CLASSTYPE]   = &stem_c_emit_classtype,
     };
 
     target->name = "C-Source";
@@ -25,6 +26,7 @@ void stem_c_header_target_init(stem_target_t *target) {
         [STEM_NODE_CLASS]       = &stem_c_emit_class_declaration,
         [STEM_NODE_FUNCTION]    = NULL,
         [STEM_NODE_VARIABLE]    = &stem_c_emit_variable,
+        [STEM_NODE_CLASSTYPE]   = &stem_c_emit_classtype,
     };
 
     target->name = "C-Header";
@@ -39,20 +41,6 @@ void stem_c_emit_module_header(stem_build_context_t *bctx, stem_node_t *vnode) {
     stem_node_module_t *module = stem_node_cast_module(vnode);
     stem_dispatch_list(bctx, module->classes);
     stem_dispatch_list(bctx, module->functions);
-}
-
-static void stem_c_type_annotation(stem_build_context_t *bctx, 
-                                        stem_node_t *vnode) {
-    switch (vnode->desc->kind) {
-        case STEM_NODE_IDENT: {
-            stem_node_ident_t *node = stem_node_cast_ident(vnode);
-            stem_separated(bctx, node->name);
-            break;
-        }
-
-        default:
-            assert(1); // TODO: ERROR
-    }
 }
 
 void stem_c_emit_class_declaration(stem_build_context_t *bctx, 
@@ -75,9 +63,28 @@ void stem_c_emit_class_declaration(stem_build_context_t *bctx,
 void stem_c_emit_variable(stem_build_context_t *bctx, stem_node_t *vnode) {
     stem_node_variable_t *node = stem_node_cast_variable(vnode);
 
-    stem_c_type_annotation(bctx, node->anno);
+    stem_dispatch(bctx, node->anno);
     stem_separated(bctx, node->name);
     stem_c_like_semicolon(bctx);
+}
+
+void stem_c_emit_classtype(stem_build_context_t *bctx, stem_node_t *vnode) {
+    stem_node_classtype_t *node = stem_node_cast_classtype(vnode);
+
+    stem_separated(bctx, node->name);
+
+    switch (node->store) {
+        case STEM_STORE_REFERENCE: {
+            stem_token_t *token = stem_separator(bctx, "*");
+            stem_set_option_soft(token, pre, space, true);
+            stem_set_option(token, post, space, false);
+        }
+            
+            break;
+
+        case STEM_STORE_VALUE:
+            break;
+    }
 }
 
 void stem_c_entry_source(stem_build_context_t *bctx, stem_node_t *vnode) {

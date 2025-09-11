@@ -5,9 +5,12 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef struct stem_node_t stem_node_t;
+typedef enum {
+    STEM_STORE_REFERENCE,
+    STEM_STORE_VALUE,
+} stem_storagetype_t;
 
-typedef struct stem_node_context_t stem_node_context_t;
+typedef struct stem_node_t stem_node_t;
 
 stem_node_t *stem_module(char *name, stem_node_t **classes, 
                          stem_node_t **functions);
@@ -31,6 +34,8 @@ stem_node_t *stem_true();
 stem_node_t *stem_false();
 
 stem_node_t *stem_ident(char *name);
+
+stem_node_t *stem_classtype(char *name, stem_storagetype_t store);
 
 stem_node_t **stem_empty();
 

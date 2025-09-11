@@ -25,4 +25,6 @@
 
 #define Ident stem_ident
 
+#define ClassType stem_classtype
+
 #endif

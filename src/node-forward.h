@@ -15,4 +15,6 @@ typedef struct stem_node_bool_lit_t stem_node_bool_lit_t;
 
 typedef struct stem_node_ident_t stem_node_ident_t;
 
+typedef struct stem_node_classtype_t stem_node_classtype_t;
+
 #endif

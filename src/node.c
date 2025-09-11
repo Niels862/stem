@@ -165,6 +165,24 @@ stem_node_t *stem_ident(char *name) {
     return &node->base;
 }
 
+stem_node_t *stem_classtype(char *name, stem_storagetype_t store) {
+    static stem_node_descriptor_t desc = {
+        .kind = STEM_NODE_CLASSTYPE,
+        .name = "classtype",
+        .attrs = {
+            { offsetof(stem_node_ident_t, name), STEM_ATTR_STRVIEW },
+        }
+    };
+
+    stem_node_classtype_t *node = stem_xmalloc(sizeof(stem_node_classtype_t));
+
+    stem_node_base_init(&node->base, &desc);
+    node->name = name;
+    node->store = store;
+
+    return &node->base;
+}
+
 stem_node_t **stem_empty() {
     stem_node_t **list = stem_xmalloc(sizeof(stem_node_t *));
 
@@ -328,6 +346,7 @@ STEM_NODE_SOURCE(STEM_NODE_VARIABLE, variable)
 STEM_NODE_SOURCE(STEM_NODE_IF_ELSE, if_else)
 STEM_NODE_SOURCE(STEM_NODE_BOOL_LIT, bool_lit)
 STEM_NODE_SOURCE(STEM_NODE_IDENT, ident)
+STEM_NODE_SOURCE(STEM_NODE_CLASSTYPE, classtype)
 
 static void stem_node_list_visit(stem_node_t **list, void *ctx, 
                                  void(*func)(stem_node_t *, void *)) {
